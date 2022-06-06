@@ -653,6 +653,8 @@ def cdna_Kraken(isolate,seq):
     # run the kraken command
     subprocess.call(runCkrak, shell=True)
     print("Kraken complete")
+    # carry out bracken
+    
     # return the path to the isolate kraken folder
     return krakOut
 ####################################################################################################################################################
