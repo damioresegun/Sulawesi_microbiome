@@ -14,6 +14,7 @@ import configparser
 import subprocess
 import argparse
 import mappy as mp
+import logging
 import logging.handlers
 import time
 from Bio import SeqIO
@@ -31,10 +32,10 @@ def get_args():
                                      "nanopore sequenced data." +
                                      "Ensure that the tools required are in " +
                                      "in the PATH!", add_help=False)
-    file_directory = os.path.realpath(__file__).split("NewNanoMetaPipe")[0]
-    if not os.path.isfile(os.path.join(file_directory, "NewNanoMetaPipe.py")):
-        file_directory = os.path.join(file_directory, "NewNanoMetaPipe")
-    if not os.path.isfile(os.path.join(file_directory, "NewNanoMetaPipe.py")):
+    file_directory = os.path.realpath(__file__).split("NanoMetaPipe_assemblyApproach")[0]
+    if not os.path.isfile(os.path.join(file_directory, "NanoMetaPipe_assemblyApproach.py")):
+        file_directory = os.path.join(file_directory, "NanoMetaPipe_assemblyApproach")
+    if not os.path.isfile(os.path.join(file_directory, "NanoMetaPipe_assemblyApproach.py")):
         print("Can't locate the correct path to the NewNanoMetaPipe pipeline script")
     ##########################################################################
     required_args = parser.add_argument_group('Required arguments')
@@ -63,7 +64,7 @@ def get_args():
                                "Must correspond to the order " +
                                "of barcodes given " +
                                "i.e. barcode01=isolate1_dna. " +
-                               "Must give sequence type separated "+
+                               "Must give sequence type separated " +
                                "by an underscore",
                                required=True)
     required_args.add_argument("-kr", "--kraken",
@@ -71,7 +72,7 @@ def get_args():
                                 action="store",
                                 type=str,
                                 help="Full path to your kraken installation " +
-                                "if it is not in your $PATH. If in your $PATH "+
+                                "if it is not in your $PATH. If in your $PATH " +
                                 "simply write kraken2",
                                 required=True)
     required_args.add_argument("-kb", "--kraken_DB",
@@ -104,7 +105,7 @@ def get_args():
                                 action="store",
                                 type=str,
                                 help="Full path to your bracken installation " +
-                                "if it is not in your $PATH. If in your $PATH "+
+                                "if it is not in your $PATH. If in your $PATH " +
                                 "simply write bracken",
                                 required=True)
     ##########################################################################
@@ -498,7 +499,7 @@ def dna_filter():
     ''' run the filt_qc function that is in the 'Preprocessing.py' script
     and set it to a variable '''
     ready_path = filt_qc(dem_dir, BARCODES[count], isola,
-                                        OUT_DIR,DNA_FILT_LENGTH,FILT_QUAL,)
+                                        OUT_DIR, DNA_FILT_LENGTH, FILT_QUAL)
     print('The raw demultiplexed reads have been successfully filtered ' + 
         'and saved in ' + ready_path)
     print('Please remember that the files are now renamed')
@@ -512,7 +513,7 @@ def dna_filter():
     temp = BARCODES[count] + "_" + isola
     stats = os.path.join(stats_dir, "Filtered_Demultiplexed_Reads", temp)
     # run the run_QC function on the filtered reads
-    run_QC(dem_file,BARCODES[count],stats,ofile,THREADS)
+    run_QC(dem_file, BARCODES[count], stats, ofile, THREADS)
     count += 1
     return ready_path
 def cdna_filter():
@@ -522,7 +523,7 @@ def cdna_filter():
     ''' run the filt_qc function that is in the 'Preprocessing.py' script
     and set it to a variable '''
     ready_path = filt_qc(dem_dir, BARCODES[count], cisola,
-                                        OUT_DIR,CDNA_FILT_LENGTH,FILT_QUAL,)
+                                        OUT_DIR, CDNA_FILT_LENGTH, FILT_QUAL)
     print('The raw demultiplexed reads have been successfully filtered ' + 
         'and saved in ' + ready_path)
     print('Please remember that the files are now renamed')
@@ -536,7 +537,7 @@ def cdna_filter():
     temp = BARCODES[count] + "_" + cisola
     stats = os.path.join(stats_dir, "Filtered_Demultiplexed_Reads", temp)
     # run the run_QC function on the filtered reads
-    run_QC(dem_file,BARCODES[count],stats,ofile,THREADS)
+    run_QC(dem_file, BARCODES[count], stats, ofile, THREADS)
     count += 1
     return ready_path
 ##########################################################################
@@ -549,7 +550,7 @@ def cdna_filter():
  of a read and renames it if it is duplicated. Then metaFlye takes place '''
 ##########################################################################
 # define the flye function
-def run_flye(in_file,out_dir,threads):
+def run_flye(in_file, out_dir, threads):
     try:
         # set the command
         fly = ("flye --nano-raw", in_file, "--out-dir", out_dir, "--threads", str(threads), "--meta")
@@ -579,7 +580,8 @@ cDNA_align() acts in two forms, depending on the user's wishes. If the
 def DNA_align(ready_path):
     for i in DNA_ISOLATE:
             # set the right filtered/demultiplexed file
-            file = ready_path + "/" + i + ".fastq.gz"
+            #file = ready_path + "/" + i + ".fastq.gz"
+            file = os.path.join(ready_path, i + "fastq.gz")
             # set/make the stats directory
             statss = os.path.join(stats_dir, "Alignment_Vs_Reference", i)
             if os.path.exists(statss):
@@ -587,13 +589,13 @@ def DNA_align(ready_path):
             else:
                 os.makedirs(statss)
             # run the alignment of DNA against the reference
-            hs_reads = align(i,file,temp_align_out,aligned_out,THREADS,statss,REFERENCE)
+            hs_reads = align(i, file, temp_align_out, aligned_out, THREADS, statss, REFERENCE)
             # Run de-duplication
             print('Running de-deuplication on ' + i)
             alnRename = aligned_out + "/" + i + "VsRef_unmapped_renamed.fastq"
             ''' filter_fastq_file function carries out deduplication and is in the
             'Deduplication.py' script '''
-            filter_fastq_file(hs_reads,alnRename)
+            filter_fastq_file(hs_reads, alnRename)
             print('De-duplication complete for ' + i)
             print("The reads have been renamed and saved as: " + alnRename)
 def cDNA_align(ready_path):
@@ -633,7 +635,7 @@ def cDNA_align(ready_path):
             iaw = i.split("_")[0]
             # copy the fastq of unmapped sequences to the host_free_reads folders
             fileOut = cdOut + "/" + "Alignment" + "/" + iaw + "_cDNA_VsTranscriptome.fastq"
-            hfFileOt = aligned_out + "/" + iaw + "_cDNAVsRef_unmapped.fastq"
+            hfFileOt = aligned_out + "/" + i + "VsRef_unmapped.fastq"
             # copy and rename in the new location
             shutil.copy2(fileOut, hfFileOt)
             print('cDNA reads aligned against transcriptome and host reads separated')
@@ -642,15 +644,15 @@ def cDNA_align(ready_path):
             'Deduplication.py' script '''
             print('Running de-deuplication on ' + i)
             # set the path for the deduplicated fastq
-            hfRnm = aligned_out + "/" + iaw + "_cDNAVsRef_unmapped_renamed.fastq"
-            filter_fastq_file(hfFileOt,hfRnm)
+            hfRnm = aligned_out + "/" + i + "VsRef_unmapped_renamed.fastq"
+            filter_fastq_file(hfFileOt, hfRnm)
             print('De-duplication complete for ' + i)
             print("The reads have been renamed and saved as: " + hfRnm)
 ####################################################################################################################################################
 '''Kraken classification'''
 #def dna_Kraken():
     
-def cdna_Kraken(isolate,seq,BRAKLENGTH):
+def cdna_Kraken(isolate, seq, BRAKLENGTH):
     # set the path to the deduplicated fastq- of the isolate given
     combs = isolate + "_" + seq
     toAlgn = aligned_out + "/" + combs +"VsRef_unmapped_renamed.fastq"
@@ -684,7 +686,7 @@ def cdna_Kraken(isolate,seq,BRAKLENGTH):
     runBrak = ' '.join(Brak)
     print(runBrak)
     #
-    subprocess.call(runBrak,shell=True)
+    subprocess.call(runBrak, shell=True)
     print("Bracken complete")
     # return the path to the isolate kraken folder
     return krakOut
@@ -741,7 +743,8 @@ if __name__ == '__main__':
         sys.exit(1)
     else:
         # run demultiplexing function
-        demultip(INP_DIR, dem_dir, DEMULP_CHOICE, THREADS, Q_KIT)
+        #demultip(INP_DIR, dem_dir, DEMULP_CHOICE, THREADS, Q_KIT)
+        pass
     ''' Zip the demultiplexed reads '''
     print('Zipping the fastq files')
     # zip each file in the demultiplexed file
@@ -751,7 +754,7 @@ if __name__ == '__main__':
         runPgSt = ' '.join(pgSt)
         print(runPgSt)
         # run the command
-        subprocess.call(runPgSt,shell=True)
+        subprocess.call(runPgSt, shell=True)
     print('FastQ files have been zipped')
     #############################################################################
     ''' qc the raw demultiplexed reads '''
@@ -765,7 +768,7 @@ if __name__ == '__main__':
         # set the stats path
         stats = os.path.join(stats_dir, "Raw_Demultiplexed_Reads", i)
         # run the runQC function that is in the 'Preprocessing.py' script
-        run_QC(dem_file,i,stats,ofile,THREADS)
+        run_QC(dem_file, i, stats, ofile, THREADS)
     #############################################################################
     ''' filtering: if filter check is true '''
     #############################################################################
@@ -786,7 +789,7 @@ if __name__ == '__main__':
             ''' run the filt_qc function that is in the 'Preprocessing.py' script
             and set it to a variable '''
             ready_path = filt_qc(dem_dir, BARCODES[count], isola,
-                                                OUT_DIR,DNA_FILT_LENGTH,FILT_QUAL,)
+                                                OUT_DIR, DNA_FILT_LENGTH, FILT_QUAL)
             print('The raw demultiplexed reads have been successfully filtered ' + 
                 'and saved in ' + ready_path)
             print('Please remember that the files are now renamed')
@@ -797,12 +800,12 @@ if __name__ == '__main__':
             dem_file = ready_path + "/" + isola + ".fastq.gz"
             temp = BARCODES[count] + "_" + isola
             stats = os.path.join(stats_dir, "Filtered_Demultiplexed_Reads", temp)
-            run_QC(dem_file,BARCODES[count],stats,ofile,THREADS) """
+            run_QC(dem_file, BARCODES[count], stats, ofile, THREADS) """
             # cdna filtering
             ready_path = cdna_filter()
             """ cisola = CDNA_ISOLATE[count]
             ready_path = filt_qc(dem_dir, BARCODES[count], cisola,
-                                                OUT_DIR,CDNA_FILT_LENGTH,FILT_QUAL,)
+                                                OUT_DIR, CDNA_FILT_LENGTH, FILT_QUAL,)
             print('The raw demultiplexed reads have been successfully filtered ' + 
                 'and saved in ' + ready_path)
             print('Please remember that the files are now renamed')
@@ -816,7 +819,7 @@ if __name__ == '__main__':
             temp = BARCODES[count] + "_" + cisola
             stats = os.path.join(stats_dir, "Filtered_Demultiplexed_Reads", temp)
             # run the run_QC function on the filtered reads
-            run_QC(dem_file,BARCODES[count],stats,ofile,THREADS)
+            run_QC(dem_file, BARCODES[count], stats, ofile, THREADS)
             count += 1 """
         '''if reads are not being filtered then move the demultiplexed file'''
     else:
@@ -860,6 +863,61 @@ if __name__ == '__main__':
         cDNA_align(ready_path)
         print('Alignment done')
     ###########################################################################################
+    '''Assemble the reads'''
+    ###########################################################################################
+    for i in ISOLATES:
+        toAlgn = aligned_out + "/" + i + "VsRef_unmapped_renamed.fastq"
+        assemOut = os.path.join(OUT_DIR, "DeNoVo_Assembly", i)
+        assemSt = os.path.join(stats_dir, "DeNoVo_Assembly", i)
+        if os.path.exists(assemOut):
+            pass
+        else:
+            os.makedirs(assemOut)
+        if os.path.exists(assemSt):
+            pass
+        else:
+            os.makedirs(assemSt)
+        # assemble
+        run_flye(toAlgn, assemOut, THREADS)
+        print('Assembly completed with metaFlye')
+        # assembly-stats
+        assemFile = os.path.join(assemOut, "assembly.fasta")
+        assemO = assemSt + "/RAW_assembly_stats.txt"
+        run_AssemStats(i, assemFile, assemO)
+        # quast
+        qAssmO = os.path.join(assemSt, "Quast")
+        #rawQ = raw_Quast(assemFile,qAssmO,REFERENCE,REF_GFF,str(THREADS))
+        rawQ = raw_Quast(assemFile, qAssmO, str(THREADS))
+        print('Quast assessment done and saved in ' + rawQ)
+        # copy the assembly file to a more accessible point
+        print('The generated assembly will be copied to a new folder')
+        assemS = os.path.join(OUT_DIR, "Assemblies", "Raw")
+        if os.path.exists(assemS):
+            pass
+        else:
+            os.makedirs(assemS)
+        coAssemFile = os.path.join(assemS, (i + ".fasta"))
+        print(coAssemFile)
+        shutil.copy2(assemFile, coAssemFile)
+        print('The generated assembly files have been copied to ' + assemS)
+        # kraken
+        krakOut = os.path.join(OUT_DIR, "Kraken", i)
+        if os.path.exists(krakOut):
+            pass
+        else:
+            os.makedirs(krakOut)
+        cKrak = (KRAK, "--db", KRAKDB, coAssemFile, "--threads", str(THREADS),
+                "--output", krakOut+"/All_classifications.tsv",
+                "--report", krakOut+"/report.txt", "--use-names",
+                "--unclassified-out", krakOut+"/unclassified.fastq",
+                "--classified-out", krakOut+"/classified.fastq", 
+                "--minimum-hit-groups", str(KRAK_THRESH), "--report-minimizer-data")
+        runCkrak = ' '.join(cKrak)
+        print(runCkrak)
+        subprocess.call(runCkrak, shell=True)
+        print("Kraken complete")
+    exit
+    ###########################################################################################
     '''Kraken and assembly classification'''
     ###########################################################################################
     # if the user chose to use cdna reads
@@ -868,7 +926,7 @@ if __name__ == '__main__':
             # run the kraken classification function
             sequt = "cDNA"
             iaw = i.split("_")[0]
-            ckrakOut = cdna_Kraken(iaw, sequt,CBRACK_LENGTH)
+            ckrakOut = cdna_Kraken(iaw, sequt, CBRACK_LENGTH)
             print('Kraken completed. Formatting outputs')
             # set the paths to the outputs of kraken and the newly formatted versions
             clasFast = os.path.join(ckrakOut, "classified.fastq")
@@ -887,9 +945,9 @@ if __name__ == '__main__':
             else:
                 os.makedirs(UncClassemOut)
             # assemble classified
-            run_flye(clasFast,ClasassemOut,THREADS)
+            run_flye(clasFast, ClasassemOut, THREADS)
             # assemble unclassified
-            run_flye(unclasFast,UncClassemOut,THREADS)
+            run_flye(unclasFast, UncClassemOut, THREADS)
             print('Assembly completed with metaFlye')
              # running stats on the raw assemblies
             print('Now running general stats on the generated assemblies')
@@ -910,8 +968,8 @@ if __name__ == '__main__':
             ClassemO = ClasassemSt + "/_classified_assembly_stats.txt"
             UnclassemO = UncClassemSt + "/_unclassified_assembly_stats.txt"
             # run the assembly stats function that is in the AssemblyQC script
-            run_AssemStats(i,ClassemFile,ClassemO)
-            run_AssemStats(i,UnclassemFile,UnclassemO)
+            run_AssemStats(i, ClassemFile, ClassemO)
+            run_AssemStats(i, UnclassemFile, UnclassemO)
             print('The generated assembly will be copied to a new folder')
             # set/make the folder to transfer the raw assemblies for easier access
             assemS = os.path.join(OUT_DIR, "Assemblies", "Raw")
@@ -931,7 +989,7 @@ if __name__ == '__main__':
         for i in DNA_ISOLATE:
             sequt = "DNA"
             iaw = i.split("_")[0]
-            ckrakOut = cdna_Kraken(iaw, sequt,DBRACK_LENGTH)
+            ckrakOut = cdna_Kraken(iaw, sequt, DBRACK_LENGTH)
             print('Kraken completed. Formatting outputs')
             # set the paths to the outputs of kraken and the newly formatted versions
             clasFast = os.path.join(ckrakOut, "classified.fastq")
@@ -950,9 +1008,9 @@ if __name__ == '__main__':
             else:
                 os.makedirs(UncClassemOut)
             # assemble classified
-            run_flye(clasFast,ClasassemOut,THREADS)
+            run_flye(clasFast, ClasassemOut, THREADS)
             # assemble unclassified
-            run_flye(unclasFast,UncClassemOut,THREADS)
+            run_flye(unclasFast, UncClassemOut, THREADS)
             print('Assembly completed with metaFlye')
              # running stats on the raw assemblies
             print('Now running general stats on the generated assemblies')
@@ -973,8 +1031,8 @@ if __name__ == '__main__':
             ClassemO = ClasassemSt + "/_classified_assembly_stats.txt"
             UnclassemO = UncClassemSt + "/_unclassified_assembly_stats.txt"
             # run the assembly stats function that is in the AssemblyQC script
-            run_AssemStats(i,ClassemFile,ClassemO)
-            run_AssemStats(i,UnclassemFile,UnclassemO)
+            run_AssemStats(i, ClassemFile, ClassemO)
+            run_AssemStats(i, UnclassemFile, UnclassemO)
             print('The generated assembly will be copied to a new folder')
             # set/make the folder to transfer the raw assemblies for easier access
             assemS = os.path.join(OUT_DIR, "Assemblies", "Raw")
@@ -994,7 +1052,7 @@ if __name__ == '__main__':
             # run the kraken classification function
             sequt = "cDNA"
             iaw = i.split("_")[0]
-            ckrakOut = cdna_Kraken(iaw, sequt,CBRACK_LENGTH)
+            ckrakOut = cdna_Kraken(iaw, sequt, CBRACK_LENGTH)
             print('Kraken completed. Formatting outputs')
             # set the paths to the outputs of kraken and the newly formatted versions
             clasFast = os.path.join(ckrakOut, "classified.fastq")
@@ -1015,9 +1073,9 @@ if __name__ == '__main__':
                 else:
                     os.makedirs(UncClassemOut)
                 # assemble classified
-                run_flye(clasFast,ClasassemOut,THREADS)
+                run_flye(clasFast, ClasassemOut, THREADS)
                 # assemble unclassified
-                run_flye(unclasFast,UncClassemOut,THREADS)
+                run_flye(unclasFast, UncClassemOut, THREADS)
                 print('Assembly completed with metaFlye')
                 # running stats on the raw assemblies
                 print('Now running general stats on the generated assemblies')
@@ -1038,8 +1096,8 @@ if __name__ == '__main__':
                 ClassemO = ClasassemSt + "/_classified_assembly_stats.txt"
                 UnclassemO = UncClassemSt + "/_unclassified_assembly_stats.txt"
                 # run the assembly stats function that is in the AssemblyQC script
-                run_AssemStats(i,ClassemFile,ClassemO)
-                run_AssemStats(i,UnclassemFile,UnclassemO)
+                run_AssemStats(i, ClassemFile, ClassemO)
+                run_AssemStats(i, UnclassemFile, UnclassemO)
                 print('The generated assembly will be copied to a new folder')
                 # set/make the folder to transfer the raw assemblies for easier access
                 assemS = os.path.join(OUT_DIR, "Assemblies", "Raw")
@@ -1060,7 +1118,7 @@ if __name__ == '__main__':
         for i in DNA_ISOLATE:
             sequt = "DNA"
             iaw = i.split("_")[0]
-            ckrakOut = cdna_Kraken(iaw, sequt,DBRACK_LENGTH)
+            ckrakOut = cdna_Kraken(iaw, sequt, DBRACK_LENGTH)
             print('Kraken completed. Formatting outputs')
             # set the paths to the outputs of kraken and the newly formatted versions
             clasFast = os.path.join(ckrakOut, "classified.fastq")
@@ -1079,9 +1137,9 @@ if __name__ == '__main__':
             else:
                 os.makedirs(UncClassemOut)
             # assemble classified
-            run_flye(clasFast,ClasassemOut,THREADS)
+            run_flye(clasFast, ClasassemOut, THREADS)
             # assemble unclassified
-            run_flye(unclasFast,UncClassemOut,THREADS)
+            run_flye(unclasFast, UncClassemOut, THREADS)
             print('Assembly completed with metaFlye')
              # running stats on the raw assemblies
             print('Now running general stats on the generated assemblies')
@@ -1102,8 +1160,8 @@ if __name__ == '__main__':
             ClassemO = ClasassemSt + "/_classified_assembly_stats.txt"
             UnclassemO = UncClassemSt + "/_unclassified_assembly_stats.txt"
             # run the assembly stats function that is in the AssemblyQC script
-            run_AssemStats(i,ClassemFile,ClassemO)
-            run_AssemStats(i,UnclassemFile,UnclassemO)
+            run_AssemStats(i, ClassemFile, ClassemO)
+            run_AssemStats(i, UnclassemFile, UnclassemO)
             print('The generated assembly will be copied to a new folder')
             # set/make the folder to transfer the raw assemblies for easier access
             assemS = os.path.join(OUT_DIR, "Assemblies", "Raw")
