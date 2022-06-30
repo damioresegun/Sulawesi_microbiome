@@ -21,6 +21,7 @@ import logging.handlers
 import time
 import shutil
 from pathlib import Path
+from PipelineDevScripts.NanoMetaPipe_assemblyApproach import CDNA_ISOLATE, DNA_ISOLATE
 from Scripts.PreChecks import isolateList
 from Scripts.AssemblyQC import run_AssemStats, raw_Quast
 from Scripts.Racon_Medaka import runRacon, runMedaka
@@ -290,7 +291,7 @@ if __name__ == '__main__':
     e_err_handler.setFormatter(e_err_formatter)
     logger.addHandler(e_err_handler)
     try:
-        logstream = open(OUT_DIR + '/debug.log', 'w')
+        logstream = open(OUT_DIR + '/logINFO.log', 'w')
         d_err_handler_file = logging.StreamHandler(logstream)
         d_err_handler_file.setFormatter(d_err_formatter)
         d_err_handler_file.setLevel(logging.INFO)
@@ -333,7 +334,19 @@ for isolate in ISOLATES:
         print('Do all your isolate names have _dna or _cdna or _dscdna?')
         print('Please look at the help and try again')
         sys.exit(1) """
-isolateList(ISOLATES)
+print = logger.info
+DNA_ISOLATE, CDNA_ISOLATE, DNAPres, CDNAPres = isolateList(ISOLATES)
+if DNAPres is True:
+    print('You have provided DNA sequences')
+    print(DNA_ISOLATE)
+elif CDNAPres is True:
+    print('You have provided cDNA sequences')
+    print(CDNA_ISOLATE)
+else:
+    print('You have not provided the isolates in a satisfactory format')
+    print('Do all your isolate names have _dna or _cdna or _dscdna?')
+    print('Please look at the help and try again')
+    sys.exit(1)
 ''' check if the a cDNA reference genome is given '''
 # set the sequence type based on the user's options
 if SEQ_TYP == "dna":
@@ -356,5 +369,5 @@ elif SEQ_TYP == "cdna":
         CREF = REFERENCE
         pass
 # if the user chose both dna and cdna, check the inputs
-elif SEQ_TYP == "both":
+#elif SEQ_TYP == "both":
     # check if the dna reference is given
