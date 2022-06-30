@@ -21,8 +21,7 @@ import logging.handlers
 import time
 import shutil
 from pathlib import Path
-from webbrowser import get
-from PipelineDevScripts.NanoMetaPipe_assemblyApproach import BARCODES, DEMULP_CHOICE, EXP_NAME, FILE_DIRECTORY, FILTER_PASS, FLOWCELL, INP_DIR, ISOLATES, MAKCREF, MXMEM, OUT_DIR, REF_GFF, REFERENCE
+from Scripts.PreChecks import isolateList
 from Scripts.AssemblyQC import run_AssemStats, raw_Quast
 from Scripts.Racon_Medaka import runRacon, runMedaka
 from Scripts.Preprocessing import demultip, filt_qc, run_QC
@@ -312,7 +311,7 @@ if __name__ == '__main__':
 # Check inputs are as expected
 #############################################################################################
 # make lists for DNA and cDNA isolates
-DNA_ISOLATE = []
+""" DNA_ISOLATE = []
 CDNA_ISOLATE = []
 # check the isolate names given fit the needed format
 for isolate in ISOLATES:
@@ -333,6 +332,29 @@ for isolate in ISOLATES:
         logger.info('You have not provided the isolates in a satisfactory format')
         print('Do all your isolate names have _dna or _cdna or _dscdna?')
         print('Please look at the help and try again')
-        sys.exit(1)
-
-    logger.info("The arguments are: %s", args)
+        sys.exit(1) """
+isolateList(ISOLATES)
+''' check if the a cDNA reference genome is given '''
+# set the sequence type based on the user's options
+if SEQ_TYP == "dna":
+    pass
+elif SEQ_TYP == "cdna":
+    # if the sequence type is cdna, check if the user wants to make a transcriptome
+    if MAKCREF is True:
+        # if the user wants to make a transcriptome, check if they provide reads
+        if not CREADS:
+            logger.info('You have chosen to make a transcriptome assembly but provided no reads')
+            logger.info('Please provide the reads and run again')
+            sys.exit(1)
+        else:
+            logger.info('You have chosen not to make a transcriptome')
+            logger.info(MAKCREF)
+            pass
+    else:
+        ''' if the user is not making a transcriptome, use the given reference as the
+         cdna transcriptome '''
+        CREF = REFERENCE
+        pass
+# if the user chose both dna and cdna, check the inputs
+elif SEQ_TYP == "both":
+    # check if the dna reference is given
