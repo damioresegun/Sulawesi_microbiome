@@ -17,18 +17,23 @@ def isolateList(IsoList):
         iso = isolate.lower()
         # if the isolate has DNA in its name
         if (iso.__contains__("_dna")):
-            print('You have provided DNA sequences')
-            print(isolate)
+            #print('You have provided DNA sequences')
+            #print(isolate)
             # add the isolate to the DNA list
             DNA_ISOLATE.append(isolate)
+            DNAPRES = True
         # if the isolate has cDNA in its name
         elif (iso.__contains__("cdna")):
             print('You have provided cDNA sequences')
             print(isolate)
             # add the isolate to the cDNA list
             CDNA_ISOLATE.append(isolate)
+            CDNAPRES = True
         else:
-            print('You have not provided the isolates in a satisfactory format')
-            print('Do all your isolate names have _dna or _cdna or _dscdna?')
-            print('Please look at the help and try again')
-            sys.exit(1)
+            DNAPRES = False
+            CDNAPRES = False
+            #print('You have not provided the isolates in a satisfactory format')
+            #print('Do all your isolate names have _dna or _cdna or _dscdna?')
+            #print('Please look at the help and try again')
+            #sys.exit(1)
+    return DNA_ISOLATE, CDNA_ISOLATE, DNAPRES, CDNAPRES
