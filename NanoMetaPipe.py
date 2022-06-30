@@ -240,6 +240,8 @@ def get_args():
     #########################################################################################
     args = parser.parse_args()
     return args, file_directory
+
+
 #############################################################################################
 # set global variables
 args, FILE_DIRECTORY = get_args()
@@ -269,8 +271,6 @@ BRAK = args.Bracken_PATH
 BRAKTHRESH = args.Bracken_Hit_Threshold                        
 SCPTS = os.path.join(FILE_DIRECTORY, "Scripts") # Scripts folder will be part of the package
 # INDEX = os.path.join(FILEDIRETORY, "Index") # Index folder will be part of the package. WILL INCLUDE TruSeq.fa and readme file with links for the SRR sequences and the macaca nemestrina downloads
-#############################################################################################
-
 ####################################################################################################################################################
 # Run the script and functions
 ####################################################################################################################################################
@@ -308,5 +308,31 @@ if __name__ == '__main__':
     # Print the arguments to file
     logger.info("Command line: %s", ' '.join(sys.argv))
     logger.info("Starting: %s", time.asctime())
+#############################################################################################
+# Check inputs are as expected
+#############################################################################################
+# make lists for DNA and cDNA isolates
+DNA_ISOLATE = []
+CDNA_ISOLATE = []
+# check the isolate names given fit the needed format
+for isolate in ISOLATES:
+    iso = isolate.lower()
+    # if the isolate has DNA in its name
+    if (iso.__contains__("_dna")):
+        logger.info('You have provided DNA sequences')
+        logger.info(isolate)
+        # add the isolate to the DNA list
+        DNA_ISOLATE.append(isolate)
+    # if the isolate has cDNA in its name
+    elif (iso.__contains__("cdna")):
+        logger.info('You have provided cDNA sequences')
+        logger.info(isolate)
+        # add the isolate to the cDNA list
+        CDNA_ISOLATE.append(isolate)
+    else:
+        logger.info('You have not provided the isolates in a satisfactory format')
+        print('Do all your isolate names have _dna or _cdna or _dscdna?')
+        print('Please look at the help and try again')
+        sys.exit(1)
 
     logger.info("The arguments are: %s", args)
