@@ -335,7 +335,9 @@ for isolate in ISOLATES:
         print('Please look at the help and try again')
         sys.exit(1) """
 print = logger.info
-DNA_ISOLATE, CDNA_ISOLATE, DNAPres, CDNAPres = isolateList(ISOLATES)
+DNA_ISOLATE = []
+CDNA_ISOLATE = []
+DNA_ISOLATE.append, CDNA_ISOLATE.append, DNAPres, CDNAPres = isolateList(ISOLATES)
 if DNAPres is True:
     print('You have provided DNA sequences')
     print(DNA_ISOLATE)

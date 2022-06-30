@@ -24,8 +24,8 @@ def isolateList(IsoList):
             DNAPRES = True
         # if the isolate has cDNA in its name
         elif (iso.__contains__("cdna")):
-            print('You have provided cDNA sequences')
-            print(isolate)
+            #print('You have provided cDNA sequences')
+            #print(isolate)
             # add the isolate to the cDNA list
             CDNA_ISOLATE.append(isolate)
             CDNAPRES = True
