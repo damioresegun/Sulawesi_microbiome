@@ -46,7 +46,7 @@ def get_args():
     if not os.path.isfile(os.path.join(file_directory, "NanoMetaPipe.py")):
         file_directory = os.path.join(file_directory, "NanoMetaPipe")
     if not os.path.isfile(os.path.join(file_directory, "NanoMetaPipe.py")):
-        print("Can't locate the correct path to the NewNanoMetaPipe pipeline script")
+        print("Can't locate the correct path to the NanoMetaPipe pipeline script")
     #########################################################################################
     required_args = parser.add_argument_group('Required arguments')
     required_args.add_argument("-b", "--basecalled", 
@@ -68,9 +68,9 @@ def get_args():
                                 "separated by underscore e.g. -e isolate1_dna isolate2_cdna. " +
                                 "Must correspond to the order of barcodes given i.e. " +
                                 "barcode01=isolate1_dna.", required = True)
-    required_args.add_argument("-kr", "kraken", 
+    required_args.add_argument("-kr", "--kraken", 
                                 dest = "Kraken_PATH",
-                                ation = "store", type = str, 
+                                action = "store", type = str, 
                                 help = "Full path to the install kraken package. " +
                                 "If kraken is in the $PATH, simply write kraken2",
                                 required = True)
@@ -78,7 +78,7 @@ def get_args():
                                 dest = "Kraken_DB_Path",
                                 action = "store", type = str,
                                 help = "Full path to the installed kraken database",
-                                require = True)
+                                required = True)
     required_args.add_argument("-r", "--reference", 
                                 dest = "Reference_Genome",
                                 action = "store", type = str,
@@ -309,4 +309,4 @@ if __name__ == '__main__':
     logger.info("Command line: %s", ' '.join(sys.argv))
     logger.info("Starting: %s", time.asctime())
 
-    logger.info("The arguments are: " + args)
+    logger.info("The arguments are: %s", args)
