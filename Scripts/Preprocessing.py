@@ -11,6 +11,8 @@
 from itertools import count
 import os
 import subprocess
+
+from Scripts.Tools import makeDirectory
 #################### State functions #####################################
 ##########################################################################
 """Demultiplexing
@@ -27,26 +29,26 @@ def demultip(INP_DIR, dem_dir, DEMULP_CHOICE, THREADS, KIT):
             # sets the input for qcat to the basecalled reads
             dem_INP = INP_DIR + "/*"
             # constructs the qcat command
-            qdem = ("cat", dem_INP, "| qcat -b", dem_dir, 
+            runQdem = ' '.join("cat", dem_INP, "| qcat -b", dem_dir, 
             "--detect-middle -t", str(THREADS), "--trim -k", KIT)
         # joins the individual words into a single command string
-            runQdem = ' '.join(qdem)
+            #runQdem = ' '.join(qdem)
             # print for logging
             print(runQdem)
             # run qcat command
-            #subprocess.call(runQdem, shell=True)
+            subprocess.call(runQdem, shell=True)
             print('Demultiplexing complete')
         # check if the user selected guppy for demultiplexing
         elif DEMULP_CHOICE == "guppy":
             # constructs the quppy command
-            gdem = ("guppy_barcoder -i", INP_DIR, "-s", dem_dir, 
+            runGdem = ' '.join("guppy_barcoder -i", INP_DIR, "-s", dem_dir, 
                     "--barcode_kits", KIT,
                     "-r -q 0 -t", str(THREADS), "--compress_fastq -x auto",
                     "--detect_mid_strand_barcodes --trim_barcodes", 
                     "--trim_adapters")
-            runGdem = ' '.join(gdem)
+            #runGdem = ' '.join(gdem)
             print(runGdem)
-            #subprocess.call(runGdem, shell=True)
+            subprocess.call(runGdem, shell=True)
             print('Demultiplexing complete')
     except OSError as error:
         print(error)
@@ -128,20 +130,17 @@ def filt_qc(dem_dir,barcode,isolate,OUT_DIR,FILT_LENGTH,FILT_QUAL):
     file_in = os.path.join(dem_dir, temp)
     # make the output folder
     filt_out = os.path.join(OUT_DIR, "Filtered_Demultiplexed_Reads")
-    if os.path.exists(filt_out):
-        pass
-    else:
-        os.mkdir(filt_out)
+    makeDirectory(filt_out)
     # overwrite the temporary variable with the renamed fastq
     temp = isolate + ".fastq.gz"
     filt_file_out = os.path.join(filt_out, temp)
     # construct the nanofilt command
-    filtSt = ("gunzip -c", file_in, "|NanoFilt -l", str(FILT_LENGTH), "-q",
+    runFiltSt = ' '.join("gunzip -c", file_in, "|NanoFilt -l", str(FILT_LENGTH), "-q",
               str(FILT_QUAL), "| gzip >", filt_file_out)
-    runFiltSt = ' '.join(filtSt)
+    #runFiltSt = ' '.join(filtSt)
     print(runFiltSt)
     # run nanofilt command
-    #subprocess.call(runFiltSt, shell=True)
+    subprocess.call(runFiltSt, shell=True)
     ''' returns the path where the filtered reads are saved and the stats
      directory where the results are saved '''
     return filt_out
@@ -155,33 +154,30 @@ Function uses NanoQC, NanoStat and FastQC to carry out QC checks
 Outputs will be placed in the Stats folder and named appropriately"""
 def run_QC(file,barcode,stats,ofile,THREADS):
     # check if the provided folder exists already
-    if os.path.exists(stats):
-        pass
-    else:
-        os.makedirs(stats)
+    makeDirectory(stats)
     # make an internal variable to not affect global
     file_in = file
     # construct the nanostat command
-    nanSt = ("NanoStat", "--fastq", file_in, "--outdir", stats, "-n", ofile)
-    runNanSt = ' '.join(nanSt)
+    runNanSt = ' '.join("NanoStat", "--fastq", file_in, "--outdir", stats, "-n", ofile)
+    #runNanSt = ' '.join(nanSt)
     print(runNanSt)
     # run the nanostat command
-    #subprocess.call(runNanSt, shell=True)
+    subprocess.call(runNanSt, shell=True)
     print('nanoStat complete for ' + barcode)
     print('Proceeding to nanoQC')
     # construct the nanoQC command
-    nanQ = ("nanoQC", "-o", stats, file_in)
-    runNanQ = ' '.join(nanQ)
+    runNanQ = ' '.join("nanoQC", "-o", stats, file_in)
+    #runNanQ = ' '.join(nanQ)
     print(runNanQ)
     # run the nanoQC command
-    #subprocess.call(runNanQ, shell=True)
+    subprocess.call(runNanQ, shell=True)
     print('nanoQC complete for ' + barcode)
     print('Proceeding to FastQC')
     # construct the fastqc command
-    fatq = ("fastqc", "-t", str(THREADS), "-o", stats, file_in)
-    runFatq = ' '.join(fatq)
+    runFatq = ' '.join("fastqc", "-t", str(THREADS), "-o", stats, file_in)
+    #runFatq = ' '.join(fatq)
     print(runFatq)
     # run the fastqc command
-    #subprocess.call(runFatq, shell=True)
+    subprocess.call(runFatq, shell=True)
     print('FastQC complete')
 ##########################################################################
