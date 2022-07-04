@@ -459,3 +459,5 @@ for barcode in BARCODES:
         # run the runQC function that is in the 'Preprocessing.py' script
         run_QC(dem_file, barcode, stats, ofile, THREADS)
 
+
+
