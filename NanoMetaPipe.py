@@ -22,7 +22,7 @@ import time
 import shutil
 from pathlib import Path
 from PipelineDevScripts.NanoMetaPipe_assemblyApproach import CDNA_ISOLATE, DNA_ISOLATE
-from Scripts.PreChecks import isolateList
+from Scripts.PreChecks import isolateList, seqCheck
 from Scripts.AssemblyQC import run_AssemStats, raw_Quast
 from Scripts.Racon_Medaka import runRacon, runMedaka
 from Scripts.Preprocessing import demultip, filt_qc, run_QC
@@ -312,7 +312,8 @@ if __name__ == '__main__':
 # Check inputs are as expected
 #############################################################################################
 # make lists for DNA and cDNA isolates
-""" DNA_ISOLATE = []
+print = logger.info
+DNA_ISOLATE = []
 CDNA_ISOLATE = []
 # check the isolate names given fit the needed format
 for isolate in ISOLATES:
@@ -333,9 +334,10 @@ for isolate in ISOLATES:
         logger.info('You have not provided the isolates in a satisfactory format')
         print('Do all your isolate names have _dna or _cdna or _dscdna?')
         print('Please look at the help and try again')
-        sys.exit(1) """
-print = logger.info
-DNA_ISOLATE = []
+        sys.exit(1)
+#############################################################################################
+''''Not working'''
+""" DNA_ISOLATE = []
 CDNA_ISOLATE = []
 DNA_ISOLATE.append, CDNA_ISOLATE.append, DNAPres, CDNAPres = isolateList(ISOLATES)
 if DNAPres is True:
@@ -348,10 +350,11 @@ else:
     print('You have not provided the isolates in a satisfactory format')
     print('Do all your isolate names have _dna or _cdna or _dscdna?')
     print('Please look at the help and try again')
-    sys.exit(1)
+    sys.exit(1) """
+#############################################################################################
 ''' check if the a cDNA reference genome is given '''
 # set the sequence type based on the user's options
-if SEQ_TYP == "dna":
+""" if SEQ_TYP == "dna":
     pass
 elif SEQ_TYP == "cdna":
     # if the sequence type is cdna, check if the user wants to make a transcriptome
@@ -369,7 +372,53 @@ elif SEQ_TYP == "cdna":
         ''' if the user is not making a transcriptome, use the given reference as the
          cdna transcriptome '''
         CREF = REFERENCE
-        pass
+        pass """
+noCref, Cref, CrefMake, noRef, noAdap, Adap, makCref, AllCheck, NoSeqType = seqCheck(SEQ_TYP, 
+                        MAKCREF, CREADS,REFERENCE,CREF,CADAP)
+if noCref is True:
+    logger.error('You have chosen to make a transcriptome assembly but provided no reads.' +
+    'Please provide the reads and run again')
+    logger.info('Error occurred. Please check the error file for more information')
+    sys.exit(1)
+elif Cref is True:
+    logger.info('You are giving both DNA and cDNA reads and have selected to ' +
+                'generate a transcriptome assembly.')
+    logger.info(MAKCREF)
+elif CrefMake is True:
+    CREF = REFERENCE
+elif noRef is True:
+    logger.error('Did you provide the two needed references?')
+    logger.error('Please remember a DNA reference and a transcriptome reference ' +
+                'are required')
+    logger.info('Error occurred. Please check the error file for more information')
+    sys.exit(1)
+elif noCref is True:
+    logger.error('You have chosen to make a transcriptome assembly but provided no reads')
+    logger.error('Please provide the reads and run again')
+    logger.info('Error occurred. Please check the error file for more information')
+    sys.exit(1)
+elif noAdap is True:
+    logger.error('You have chosen to make a transcriptome assembly but provided ' +
+                'no adapters for them. Please use the -ca option to add the adapter file')
+    logger.info('Error occurred. Please check the error file for more information')
+    sys.exit(1)
+elif makCref is False:
+    logger.error('Did you provide the two needed references?')
+    logger.error('Please remember a DNA reference and a transcriptome reference ' +
+                    'are required')
+    logger.error('Please try again')
+    logger.info('Error occurred. Please check the error file for more information')
+    sys.exit(1)
+elif NoSeqType is True:
+    logger.error('Invalid sequence type entry. Please choose between dna, cdna or both')
+    logger.info('Error occurred. Please check the error file for more information')
+    sys.exit(1)
+elif AllCheck is True:
+    logger.info('All checks are correct. Continuing')
+    pass
+
+
+
 # if the user chose both dna and cdna, check the inputs
 #elif SEQ_TYP == "both":
     # check if the dna reference is given

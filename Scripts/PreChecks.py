@@ -37,3 +37,45 @@ def isolateList(IsoList):
             #print('Please look at the help and try again')
             #sys.exit(1)
     return DNA_ISOLATE, CDNA_ISOLATE, DNAPRES, CDNAPRES
+
+
+def seqCheck(seqType, makcref, creads, reference, cref, cadap):
+    if seqType == "dna":
+        pass
+    elif seqType == "cdna":
+    # if the sequence type is cdna, check if the user wants to make a transcriptome
+    if makcref is True:
+        # if the user wants to make a transcriptome, check if they provide reads
+        if not creads:
+            noCref = True
+        else:
+            Cref = True
+    else:
+        # if the user is not making a transcriptome, make the given reference the cdna transcriptome
+        CrefMake = True
+        pass
+    # if the user choose both dna and cda, check inputs
+    elif seqType == "both":
+        # check if the dna reference is given
+        if not reference:
+            noRef = True
+        # check if the cdna reference is given
+        elif not cref:
+            # check if the transcriptome assembly is to be made
+            if makcref is True:
+                if not creads:
+                    noCref = True
+                else:
+                    Cref = True
+            # check if the adaptors are given for the cdna
+                if not cadap:
+                    noAdap = True
+                else:
+                    Adap = True
+            else:
+                makCref = False
+        else:
+            AllCheck = True
+    else:
+        NoSeqType = True
+    return noCref, Cref, CrefMake, noRef, noAdap, Adap, makCref, AllCheck, NoSeqType
