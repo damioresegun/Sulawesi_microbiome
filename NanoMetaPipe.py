@@ -201,11 +201,11 @@ def get_args():
                                 "create the output file in the current working directory")
     optional_args.add_argument("-p", "--expansion", 
                                 dest = "Expansion_Kit",
-                                action = "store", type = str, default = "NDB104",
+                                action = "store", type = str, default = "NBD104",
                                 help = "The expansion kit used for barcoding isolates " +
                                 "in this experiment. The 'EXP' prefix is not necessary. " +
-                                "i.e. EXP-NDB104 should be given as NBD104. " +
-                                "[Default: NDB104]")
+                                "i.e. EXP-NBD104 should be given as NBD104. " +
+                                "[Default: NBD104]")
     optional_args.add_argument("-rd", "--redo_demulp", 
                                 dest = "Redo_Demultiplex",
                                 action = "store_true", 

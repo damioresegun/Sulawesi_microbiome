@@ -29,8 +29,8 @@ def demultip(INP_DIR, dem_dir, DEMULP_CHOICE, THREADS, KIT):
             # sets the input for qcat to the basecalled reads
             dem_INP = INP_DIR + "/*"
             # constructs the qcat command
-            runQdem = ' '.join("cat", dem_INP, "| qcat -b", dem_dir, 
-            "--detect-middle -t", str(THREADS), "--trim -k", KIT)
+            runQdem = ' '.join(["cat", dem_INP, "| qcat -b", dem_dir, 
+            "--detect-middle -t", str(THREADS), "--trim -k", KIT])
         # joins the individual words into a single command string
             #runQdem = ' '.join(qdem)
             # print for logging
@@ -41,11 +41,11 @@ def demultip(INP_DIR, dem_dir, DEMULP_CHOICE, THREADS, KIT):
         # check if the user selected guppy for demultiplexing
         elif DEMULP_CHOICE == "guppy":
             # constructs the quppy command
-            runGdem = ' '.join("guppy_barcoder -i", INP_DIR, "-s", dem_dir, 
+            runGdem = ' '.join(["guppy_barcoder -i", INP_DIR, "-s", dem_dir, 
                     "--barcode_kits", KIT,
                     "-r -q 0 -t", str(THREADS), "--compress_fastq -x auto",
                     "--detect_mid_strand_barcodes --trim_barcodes", 
-                    "--trim_adapters")
+                    "--trim_adapters"])
             #runGdem = ' '.join(gdem)
             print(runGdem)
             subprocess.call(runGdem, shell=True)
@@ -135,8 +135,8 @@ def filt_qc(dem_dir,barcode,isolate,OUT_DIR,FILT_LENGTH,FILT_QUAL):
     temp = isolate + ".fastq.gz"
     filt_file_out = os.path.join(filt_out, temp)
     # construct the nanofilt command
-    runFiltSt = ' '.join("gunzip -c", file_in, "|NanoFilt -l", str(FILT_LENGTH), "-q",
-              str(FILT_QUAL), "| gzip >", filt_file_out)
+    runFiltSt = ' '.join(["gunzip -c", file_in, "|NanoFilt -l", str(FILT_LENGTH), "-q",
+              str(FILT_QUAL), "| gzip >", filt_file_out])
     #runFiltSt = ' '.join(filtSt)
     print(runFiltSt)
     # run nanofilt command
@@ -158,7 +158,8 @@ def run_QC(file,barcode,stats,ofile,THREADS):
     # make an internal variable to not affect global
     file_in = file
     # construct the nanostat command
-    runNanSt = ' '.join("NanoStat", "--fastq", file_in, "--outdir", stats, "-n", ofile)
+    runNanSt = ' '.join(["NanoStat", "--fastq", file_in, "--outdir", 
+                        stats, "-n", ofile])
     #runNanSt = ' '.join(nanSt)
     print(runNanSt)
     # run the nanostat command
@@ -166,7 +167,7 @@ def run_QC(file,barcode,stats,ofile,THREADS):
     print('nanoStat complete for ' + barcode)
     print('Proceeding to nanoQC')
     # construct the nanoQC command
-    runNanQ = ' '.join("nanoQC", "-o", stats, file_in)
+    runNanQ = ' '.join(["nanoQC", "-o", stats, file_in])
     #runNanQ = ' '.join(nanQ)
     print(runNanQ)
     # run the nanoQC command
@@ -174,7 +175,7 @@ def run_QC(file,barcode,stats,ofile,THREADS):
     print('nanoQC complete for ' + barcode)
     print('Proceeding to FastQC')
     # construct the fastqc command
-    runFatq = ' '.join("fastqc", "-t", str(THREADS), "-o", stats, file_in)
+    runFatq = ' '.join(["fastqc", "-t", str(THREADS), "-o", stats, file_in])
     #runFatq = ' '.join(fatq)
     print(runFatq)
     # run the fastqc command

@@ -30,7 +30,7 @@ def zipFiles(directory):
     '''
     for file in os.listdir(directory,threads):
         zipDir = os.path.join(directory, file)
-        runZip = ' '.join("pigz --best", zipDir, "-p", str(threads))
+        runZip = ' '.join(["pigz --best", zipDir, "-p", str(threads)])
         print(runZip)
         subprocess.call(runZip, shell=True)
         print('FastQ files have been zipped')

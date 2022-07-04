@@ -93,7 +93,10 @@ def filterOptions(demulp,args,filter):
     if demulp == "qcat":
         G_KIT = args.Sequencing_Kit
         # set the correct 
-        Q_KIT = "NBD103/" + args.Expansion_Kit
+        if args.Expansion_Kit == "NBD104":
+            Q_KIT = "NBD103/" + args.Expansion_Kit
+        else:
+            Q_KIT = args.Expansion_Kit
     # if its guppy
     else:
         G_KIT = "SQK-" + args.Sequencing_Kit
