@@ -22,12 +22,13 @@ import time
 import shutil
 from pathlib import Path
 from PipelineDevScripts.NanoMetaPipe_assemblyApproach import CDNA_ISOLATE, DNA_ISOLATE
-from Scripts.PreChecks import filterOptions, isolateList, makeDirectory, seqCheck
+from Scripts.PreChecks import filterOptions, isolateList, seqCheck
 from Scripts.AssemblyQC import run_AssemStats, raw_Quast
 from Scripts.Racon_Medaka import runRacon, runMedaka
 from Scripts.Preprocessing import demultip, filt_qc, run_QC
 from Scripts.DNA_processing import align
 from Scripts.Deduplication import filter_fastq_file
+from Scripts.Tools import zipFiles, makeDirectory
 #############################################################################################
 def get_args():
     '''
@@ -429,18 +430,32 @@ if FILTER_PASS is False:
 '''Demultiplexing. Function: demultip is in the Preprocessing.py script'''
     # check if the user just wants to re-try demultiplexing
 if REDEMULP is True:
-    logger.info("You are just re-generating the demultiplexed reads")
+    logger.info('You are just re-generating the demultiplexed reads')
     # run the demultiplexing function from 'Preprocessing.py' script
     demultip(INP_DIR, dem_dir, DEMULP_CHOICE, THREADS, Q_KIT)
     # finish demultiplexing and exit
-    print("Demultiplexed reads regenerated")
+    logger.info('Demultiplexed reads regenerated')
     sys.exit(1)
 else:
     # run demultiplexing function
-    #demultip(INP_DIR, dem_dir, DEMULP_CHOICE, THREADS, Q_KIT)
-    logger.info('It works')
+    demultip(INP_DIR, dem_dir, DEMULP_CHOICE, THREADS, Q_KIT)
     pass
+#############################################################################################
+''' Zip the demultiplexed reads '''
+#############################################################################################
+logger.info("Zipping the fastq files")
+zipFiles(dem_dir,THREADS)
+logger.info("Files zipped")
+#############################################################################################
+'''QC raw reads'''
+#############################################################################################
+for barcode in BARCODES:
+    # make a txt file with the barcode for filename
+        ofile = barcode + ".txt"
+        # select the zipped demultiplexed file
+        dem_file = dem_dir + "/" + barcode + ".fastq.gz"
+        # set the stats path
+        stats = os.path.join(stats_dir, "Raw_Demultiplexed_Reads", barcode)
+        # run the runQC function that is in the 'Preprocessing.py' script
+        run_QC(dem_file, barcode, stats, ofile, THREADS)
 
-# if the user chose both dna and cdna, check the inputs
-#elif SEQ_TYP == "both":
-    # check if the dna reference is given
