@@ -22,7 +22,7 @@ import time
 import shutil
 from pathlib import Path
 from PipelineDevScripts.NanoMetaPipe_assemblyApproach import CDNA_ISOLATE, DNA_ISOLATE
-from Scripts.PreChecks import isolateList, seqCheck
+from Scripts.PreChecks import filterOptions, isolateList, seqCheck
 from Scripts.AssemblyQC import run_AssemStats, raw_Quast
 from Scripts.Racon_Medaka import runRacon, runMedaka
 from Scripts.Preprocessing import demultip, filt_qc, run_QC
@@ -332,8 +332,8 @@ for isolate in ISOLATES:
         CDNA_ISOLATE.append(isolate)
     else:
         logger.info('You have not provided the isolates in a satisfactory format')
-        print('Do all your isolate names have _dna or _cdna or _dscdna?')
-        print('Please look at the help and try again')
+        logger.info('Do all your isolate names have _dna or _cdna or _dscdna?')
+        print('Please look at the help message and try again')
         sys.exit(1)
 #############################################################################################
 ''''Not working'''
@@ -354,31 +354,11 @@ else:
 #############################################################################################
 ''' check if the a cDNA reference genome is given '''
 # set the sequence type based on the user's options
-""" if SEQ_TYP == "dna":
-    pass
-elif SEQ_TYP == "cdna":
-    # if the sequence type is cdna, check if the user wants to make a transcriptome
-    if MAKCREF is True:
-        # if the user wants to make a transcriptome, check if they provide reads
-        if not CREADS:
-            logger.info('You have chosen to make a transcriptome assembly but provided no reads')
-            logger.info('Please provide the reads and run again')
-            sys.exit(1)
-        else:
-            logger.info('You have chosen not to make a transcriptome')
-            logger.info(MAKCREF)
-            pass
-    else:
-        ''' if the user is not making a transcriptome, use the given reference as the
-         cdna transcriptome '''
-        CREF = REFERENCE
-        pass """
 noCref, Cref, CrefMake, noRef, noAdap, Adap, makCref, AllCheck, NoSeqType = seqCheck(SEQ_TYP, 
                         MAKCREF, CREADS,REFERENCE,CREF,CADAP)
 if noCref is True:
-    logger.error('You have chosen to make a transcriptome assembly but provided no reads.' +
+    logger.info('You have chosen to make a transcriptome assembly but provided no reads.' +
     'Please provide the reads and run again')
-    logger.info('Error occurred. Please check the error file for more information')
     sys.exit(1)
 elif Cref is True:
     logger.info('You are giving both DNA and cDNA reads and have selected to ' +
@@ -387,36 +367,42 @@ elif Cref is True:
 elif CrefMake is True:
     CREF = REFERENCE
 elif noRef is True:
-    logger.error('Did you provide the two needed references?')
-    logger.error('Please remember a DNA reference and a transcriptome reference ' +
+    logger.info('Did you provide the two needed references?')
+    logger.info('Please remember a DNA reference and a transcriptome reference ' +
                 'are required')
-    logger.info('Error occurred. Please check the error file for more information')
     sys.exit(1)
 elif noCref is True:
-    logger.error('You have chosen to make a transcriptome assembly but provided no reads')
-    logger.error('Please provide the reads and run again')
-    logger.info('Error occurred. Please check the error file for more information')
+    logger.info('You have chosen to make a transcriptome assembly but provided no reads')
+    logger.info('Please provide the reads and run again')
     sys.exit(1)
 elif noAdap is True:
-    logger.error('You have chosen to make a transcriptome assembly but provided ' +
+    logger.info('You have chosen to make a transcriptome assembly but provided ' +
                 'no adapters for them. Please use the -ca option to add the adapter file')
-    logger.info('Error occurred. Please check the error file for more information')
     sys.exit(1)
 elif makCref is False:
-    logger.error('Did you provide the two needed references?')
-    logger.error('Please remember a DNA reference and a transcriptome reference ' +
+    logger.info('Did you provide the two needed references?')
+    logger.info('Please remember a DNA reference and a transcriptome reference ' +
                     'are required')
-    logger.error('Please try again')
-    logger.info('Error occurred. Please check the error file for more information')
+    logger.info('Please try again')
     sys.exit(1)
 elif NoSeqType is True:
-    logger.error('Invalid sequence type entry. Please choose between dna, cdna or both')
-    logger.info('Error occurred. Please check the error file for more information')
+    logger.info('Invalid sequence type entry. Please choose between dna, cdna or both')
     sys.exit(1)
 elif AllCheck is True:
     logger.info('All checks are correct. Continuing')
     pass
-
+else: 
+    logger.info("Some checks have failed. Please check your options again")
+'''set some variables'''
+# check the demultiplexer choice
+filterOptions(DEMULP_CHOICE,args,FILTER_PASS)
+if CLEAN is True:
+    logger.info("You have chosen to do clean up. Large files and directories" +
+          "will be deleted as the pipelines progress. The most " +
+          "consequential of these include the deletion of the " +
+          "basecalled reads as these can simply be remade with " +
+          "the basecalling script and demultiplexing can be " +
+          "with the -rd parameter")
 
 
 # if the user chose both dna and cdna, check the inputs

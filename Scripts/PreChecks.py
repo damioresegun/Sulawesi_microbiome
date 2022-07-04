@@ -40,20 +40,29 @@ def isolateList(IsoList):
 
 
 def seqCheck(seqType, makcref, creads, reference, cref, cadap):
+    noCref = False 
+    CrefMake = False
+    Cref = False
+    noRef = False
+    noAdap = False
+    Adap = False
+    makCref = True
+    AllCheck = False
+    NoSeqType = False
     if seqType == "dna":
         pass
     elif seqType == "cdna":
     # if the sequence type is cdna, check if the user wants to make a transcriptome
-    if makcref is True:
-        # if the user wants to make a transcriptome, check if they provide reads
-        if not creads:
-            noCref = True
+        if makcref is True:
+            # if the user wants to make a transcriptome, check if they provide reads
+            if not creads:
+                noCref = True
+            else:
+                Cref = True
         else:
-            Cref = True
-    else:
-        # if the user is not making a transcriptome, make the given reference the cdna transcriptome
-        CrefMake = True
-        pass
+            # if the user is not making a transcriptome, make the given reference the cdna transcriptome
+            CrefMake = True
+            pass
     # if the user choose both dna and cda, check inputs
     elif seqType == "both":
         # check if the dna reference is given
@@ -79,3 +88,31 @@ def seqCheck(seqType, makcref, creads, reference, cref, cadap):
     else:
         NoSeqType = True
     return noCref, Cref, CrefMake, noRef, noAdap, Adap, makCref, AllCheck, NoSeqType
+
+
+def filterOptions(demulp,args,filter):
+    # if its qcat
+    if demulp == "qcat":
+        G_KIT = args.Sequencing_kit
+        # set the correct 
+        Q_KIT = "NBD103/" + args.Expansion_kit
+    # if its guppy
+    else:
+        G_KIT = "SQK-" + args.Sequencing_kit
+        Q_KIT = "EXP-" + args.Expansion_kit
+    # check if the user chose to carry out filtering
+    if filter is True:
+        # set the dna filter length
+        DNA_FILT_LENGTH = args.dna_Filter_length
+        CDNA_FILT_LENGTH = args.cdna_Filter_length
+        # set the quality
+        FILT_QUAL = args.Filter_Quality
+        # set bracken length to the filter length
+        DBRACK_LENGTH = DNA_FILT_LENGTH
+        CBRACK_LENGTH = CDNA_FILT_LENGTH
+    else:
+        # set bracken length to the default filter length
+        DBRACK_LENGTH = args.dna_Filter_length
+        CBRACK_LENGTH = args.cdna_Filter_length
+        pass
+
