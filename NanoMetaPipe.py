@@ -395,7 +395,8 @@ else:
     logger.info("Some checks have failed. Please check your options again")
 '''set some variables'''
 # check the demultiplexer choice
-filterOptions(DEMULP_CHOICE,args,FILTER_PASS)
+G_KIT, Q_KIT, DBRACK_LENGTH, CBRACK_LENGTH, FILT_QUAL = filterOptions(DEMULP_CHOICE,
+                                                                    args,FILTER_PASS)
 if CLEAN is True:
     logger.info("You have chosen to do clean up. Large files and directories" +
           "will be deleted as the pipelines progress. The most " +

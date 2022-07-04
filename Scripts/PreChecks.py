@@ -113,6 +113,7 @@ def filterOptions(demulp,args,filter):
         DBRACK_LENGTH = args.dna_Filter_Length
         CBRACK_LENGTH = args.cDNA_Filter_Length
         pass
+    return G_KIT, Q_KIT, DBRACK_LENGTH, CBRACK_LENGTH, FILT_QUAL
 
 
 def makeDirectory(directory):
