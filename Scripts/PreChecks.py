@@ -5,9 +5,7 @@ Purpose: Script to hold functions to use for pre-checks of the
             NanoMetaPipe pipeline script. 
 Author: Damilola Oresegun
 '''
-import logging
-import logging.handlers
-import sys
+import os
 
 def isolateList(IsoList):
     DNA_ISOLATE = []
@@ -93,18 +91,18 @@ def seqCheck(seqType, makcref, creads, reference, cref, cadap):
 def filterOptions(demulp,args,filter):
     # if its qcat
     if demulp == "qcat":
-        G_KIT = args.Sequencing_kit
+        G_KIT = args.Sequencing_Kit
         # set the correct 
-        Q_KIT = "NBD103/" + args.Expansion_kit
+        Q_KIT = "NBD103/" + args.Expansion_Kit
     # if its guppy
     else:
-        G_KIT = "SQK-" + args.Sequencing_kit
-        Q_KIT = "EXP-" + args.Expansion_kit
+        G_KIT = "SQK-" + args.Sequencing_Kit
+        Q_KIT = "EXP-" + args.Expansion_Kit
     # check if the user chose to carry out filtering
     if filter is True:
         # set the dna filter length
-        DNA_FILT_LENGTH = args.dna_Filter_length
-        CDNA_FILT_LENGTH = args.cdna_Filter_length
+        DNA_FILT_LENGTH = args.dna_Filter_Length
+        CDNA_FILT_LENGTH = args.cDNA_Filter_Length
         # set the quality
         FILT_QUAL = args.Filter_Quality
         # set bracken length to the filter length
@@ -112,7 +110,14 @@ def filterOptions(demulp,args,filter):
         CBRACK_LENGTH = CDNA_FILT_LENGTH
     else:
         # set bracken length to the default filter length
-        DBRACK_LENGTH = args.dna_Filter_length
-        CBRACK_LENGTH = args.cdna_Filter_length
+        DBRACK_LENGTH = args.dna_Filter_Length
+        CBRACK_LENGTH = args.cDNA_Filter_Length
         pass
+
+
+def makeDirectory(directory):
+    if os.path.exists(directory):
+        pass
+    else:
+        os.makedirs(directory)
 

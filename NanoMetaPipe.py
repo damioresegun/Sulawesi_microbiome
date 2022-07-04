@@ -22,7 +22,7 @@ import time
 import shutil
 from pathlib import Path
 from PipelineDevScripts.NanoMetaPipe_assemblyApproach import CDNA_ISOLATE, DNA_ISOLATE
-from Scripts.PreChecks import filterOptions, isolateList, seqCheck
+from Scripts.PreChecks import filterOptions, isolateList, makeDirectory, seqCheck
 from Scripts.AssemblyQC import run_AssemStats, raw_Quast
 from Scripts.Racon_Medaka import runRacon, runMedaka
 from Scripts.Preprocessing import demultip, filt_qc, run_QC
@@ -403,7 +403,42 @@ if CLEAN is True:
           "basecalled reads as these can simply be remade with " +
           "the basecalling script and demultiplexing can be " +
           "with the -rd parameter")
-
+#############################################################################################
+# Making global directories
+#############################################################################################
+# folder to hold demultiplexed reads
+dem_dir = os.path.join(OUT_DIR, "Demultiplexed")
+makeDirectory(dem_dir)
+# folder to hold stats outputs
+stats_dir = os.path.join(OUT_DIR, "Stats")
+makeDirectory(stats_dir)
+# folder to hold temporary alignment files. To be deleted with cleanup option
+temp_align_out = os.path.join(OUT_DIR, "Isolate_Reads_Aligned_Vs_Reference")
+makeDirectory(temp_align_out)
+# folder to hold cleaned reads
+aligned_out = os.path.join(OUT_DIR, "Host_Free_Reads")
+makeDirectory(aligned_out)
+# if filter option is turned off, use raw reads
+if FILTER_PASS is False:
+    rnm_path = os.path.join(OUT_DIR, "Isolate_Demultiplexed_Reads")
+    makeDirectory(rnm_path)
+#############################################################################################
+# Call functions
+#############################################################################################
+'''Demultiplexing. Function: demultip is in the Preprocessing.py script'''
+    # check if the user just wants to re-try demultiplexing
+if REDEMULP is True:
+    logger.info("You are just re-generating the demultiplexed reads")
+    # run the demultiplexing function from 'Preprocessing.py' script
+    demultip(INP_DIR, dem_dir, DEMULP_CHOICE, THREADS, Q_KIT)
+    # finish demultiplexing and exit
+    print("Demultiplexed reads regenerated")
+    sys.exit(1)
+else:
+    # run demultiplexing function
+    #demultip(INP_DIR, dem_dir, DEMULP_CHOICE, THREADS, Q_KIT)
+    logger.info('It works')
+    pass
 
 # if the user chose both dna and cdna, check the inputs
 #elif SEQ_TYP == "both":
