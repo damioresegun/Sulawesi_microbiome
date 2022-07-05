@@ -158,10 +158,10 @@ def krakBrak(krak, krakdb, brak, isolate, assembly,
     print("Kraken complete")
     # make a classic kraken command output
     runCutKrak = ' '.join(["cut -f1-3,6-8", krakOut + "/FULLreport.txt", 
-                            ">", krakOut + "/ClassicFullReport"])
+                            ">", krakOut + "/ClassicFullReport.txt"])
     subprocess.call(runCutKrak, shell=True)
     # carry out bracken
-    runBrak = ' '.join([brak, "-d", krakdb, "-i", krakOut + "/ClassicFullReport", "-o", 
+    runBrak = ' '.join([brak, "-d", krakdb, "-i", krakOut + "/ClassicFullReport.txt", "-o", 
             krakOut + "/bracken_report.txt", "-t", str(brakThres), "-w",
             krakOut + "/bracken_KrakenReport.txt", "-r", str(blength)])
     print(runBrak)
