@@ -10,13 +10,14 @@ Here the data will be read in, adjusted for easier downstream manipulation and p
 for full analysis. The data is read in using mia specifically to generate a phylogenetic
 tree using the addTaxonomy function. After this, the data object is converted into a
 phyloseq object and read into phyloseq to begin analysis.
-```{r message = FALSE}
+```{r, message = FALSE}
 # install and set libraries
 # if (!requireNamespace("BiocManager", quietly = TRUE))
 #   install.packages("BiocManager")
 # BiocManager::install(c("microbiome/mia","dendextend", "rms", "devtools","picante","tidyr",
 #     "remotes","devtools","tidyverse","dplyr","cowplot","scater","knitr","phyloseq","HMP",
 #     "vegan","ape"))
+
 library(mia)
 library(dplyr)
 library(knitr)
@@ -27,10 +28,11 @@ library(magrittr)
 library(ape)
 library(tidyverse)
 library(data.table)
+library(formatR)
 ```
 
 #### Load data
-```{r}
+```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60)}
 # download the test biom file
 #url <- "https://github.com/damioresegun/Sulawesi_microbiome/blob/dev-branch/MicrobiomeAnalysis/MFMRCFS0822_Combined.biom"
 #inpBiom <- "C:/Users/dro/Desktop/BiomFile.biom" # choose where you want to put it
@@ -48,7 +50,7 @@ The command `head(rowData(JCSData))` allows a quick view of the information stor
 Here, the taxonomic information is being shown, with the taxid in the first column followed by the 
 taxonomic levels going from Kingdom (*k*) to Species (*s*). However, this does not give us enough 
 information and requires some manipulation for ease of reading.
-```{r message=FALSE}
+```{r, message=FALSE, tidy=TRUE, tidy.opts=list(width.cutoff=60)}
 # Change the column data and remove the k___
 names(rowData(JCSData)) <- c("Kingdom", "Phylum", "Class", "Order", 
                                   "Family", "Genus", "Species")
@@ -67,7 +69,7 @@ head(rowData_mod)
 Now the data is easier to read, however the manipulated taxonomic data needs to be placed back into the
 main data object holding the rest of the information. **Note: The main data object with the full input
 information is JCSData.**
-```{r}
+```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60)}
 # add back into the entire data object
 rowData(JCSData) <- rowData_mod
 head(rowData(JCSData))
@@ -76,7 +78,7 @@ The biom file that was inputted into the script (*now saved in the data object J
 the taxid and taxonomic classification of all the samples in the experiment. However, it does not contain
 other sample metadata which we will need for different downstream statistical processing. Ideally, this
 information would be already be made in a csv file to just import. However, we will simply state them here.
-```{r}
+```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60)}
 # add sample data metadata (This changes depending on project)
 sample_meta = DataFrame(read.table("sampleData.csv", sep = ",", header = TRUE))
 # add the sample names as the row names
@@ -91,7 +93,7 @@ as well as the practical means of generating this data. Fortunately the mia pack
 a taxonomic tree from the input taxonomic data. Importantly, this is not an ideal way to generate the 
 tree as it does not contain a true outgroup to act as a root for the tree. However it can aid in some
 visualisation downstream
-```{r}
+```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60)}
 # add/make a phylogenetic tree to the data object
 JCSData <- addTaxonomyTree(JCSData) # this produces a warning message: In toTree(td) : The root is added with label 'ALL'
 #Convert this data object to phyloseq datatype for use in phyloseq
@@ -126,7 +128,7 @@ In order to root the tree in `JCSData`, an outgroup will be chosen based on the 
 branch. In this case, the outgroup is the `Species:venezulae`.
 
 Moving forward, empty characters and `N.A` characters are to be removed
-```{r}
+```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60)}
 JCSData <- subset_taxa(JCSData, !is.na(Kingdom) & !Kingdom %in% c("", "uncharacterized"))
 JCSData <- subset_taxa(JCSData, !is.na(Phylum) & !Phylum %in% c("", "uncharacterized"))
 JCSData <- subset_taxa(JCSData, !is.na(Class) & !Class %in% c("", "uncharacterized"))
@@ -138,7 +140,7 @@ JCSData <- subset_taxa(JCSData, !is.na(Species) & !Species %in% c("", "uncharact
 #### Simple metrics
 Here, simple metrics will be derived. The number of samples, taxa, number of contigs for each sample/sample
 type will be calculated and plotted where appropriate.
-```{r}
+```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60)}
 # get the number of contigs for each samples
 sample_sums(JCSData)
 # plot histogram of contig counts
@@ -171,7 +173,7 @@ write.csv(table(data.frame(tax_table(JCSData)[,2])),
     theme(legend.position = "bottom")+
     theme(axis.text.x = element_text(angle = 0, hjust=0.5)))
 ```
-```{r message=FALSE}
+```{r, message=FALSE, tidy=TRUE, tidy.opts=list(width.cutoff=60)}
 # save the plot to file
 tiff("Taxonomy_Abundance.tif", width = 5000, height = 5000, units = "px", res = 300)
 p1
@@ -199,7 +201,7 @@ provide some insights
 #### Relative Abundance
 The relative abundance is calculated using the number of contigs for each taxid divided by the total number of contigs.
 This gives a relative abundance that is normalised across the taxids and samples in the dataset. 
-```{r}
+```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60)}
 # calculate and add the relative abundance data to the object
 JCSData_Abund <- transform_sample_counts(JCSData, function(x){x/sum(x)})
 # plot the dataset using phyla to colour the stacked bar chart
@@ -210,7 +212,7 @@ JCSData_Abund <- transform_sample_counts(JCSData, function(x){x/sum(x)})
     theme(legend.position = "bottom")+
     theme(axis.text.x = element_text(angle = 0, hjust=0.5)))
 ```
-```{r message=FALSE}
+```{r, message=FALSE, tidy=TRUE, tidy.opts=list(width.cutoff=60)}
 # save the plot to file
 tiff("Taxonomy_RelativeAbundance.tif", width = 5000, height = 5000, units = "px", res = 300)
 p2 
@@ -223,7 +225,7 @@ would be advised to re-trace the pipeline in order to recover more sequences fro
 ### Alpha diversity
 This is a metric to determine the diversity within a sample. There are multiple different indices within this however the most
 commonly quoted are the Shannon and Simpson diversity indices. 
-```{r}
+```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60)}
 rareBac <- rarefy_even_depth(JCSData, rngseed = 12355, replace = FALSE)
 (alpha_div <- estimate_richness(rareBac))
 ```
@@ -232,7 +234,7 @@ diversity, the higher the value, the more diverse the sample composition is. The
 richness and rare species. On the other hand, Simpson diversity index 
 is between 0 and 1 where 0 represents infinite diversity and 1 representing no diversity. It gives more weight to evenness
 and common species.
-```{r}
+```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60)}
 # save to file
 write.csv(alpha_div, "AlphaDiversity.csv", row.names = TRUE)
 # Plot the diversity indices
