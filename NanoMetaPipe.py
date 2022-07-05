@@ -23,12 +23,10 @@ import shutil
 from pathlib import Path
 from PipelineDevScripts.NanoMetaPipe_assemblyApproach import CDNA_ISOLATE, DNA_ISOLATE
 from Scripts.PreChecks import filterOptions, isolateList, seqCheck
-from Scripts.AssemblyQC import run_AssemStats, raw_Quast
 from Scripts.Racon_Medaka import runRacon, runMedaka
-from Scripts.Preprocessing import demultip, filt_qc, run_QC
-from Scripts.DNA_processing import align
-from Scripts.Deduplication import filter_fastq_file
-from Scripts.Tools import zipFiles, makeDirectory
+from Scripts.Preprocessing import cdna_filter, demultip, dna_filter, filt_qc, run_QC
+from Scripts.DNA_processing import DNA_align, align, cDNA_align
+from Scripts.Tools import run_flye, zipFiles, makeDirectory, run_AssemStats, raw_Quast
 #############################################################################################
 def get_args():
     '''
@@ -273,7 +271,7 @@ BRAKTHRESH = args.Bracken_Hit_Threshold
 SCPTS = os.path.join(FILE_DIRECTORY, "Scripts") # Scripts folder will be part of the package
 # INDEX = os.path.join(FILEDIRETORY, "Index") # Index folder will be part of the package. WILL INCLUDE TruSeq.fa and readme file with links for the SRR sequences and the macaca nemestrina downloads
 ####################################################################################################################################################
-# Run the script and functions
+''' Run the script and functions '''
 ####################################################################################################################################################
 # Setting up logging
 if __name__ == '__main__':
@@ -310,7 +308,7 @@ if __name__ == '__main__':
     logger.info("Command line: %s", ' '.join(sys.argv))
     logger.info("Starting: %s", time.asctime())
 #############################################################################################
-# Check inputs are as expected
+''' Check inputs are as expected '''
 #############################################################################################
 # make lists for DNA and cDNA isolates
 print = logger.info
@@ -356,7 +354,7 @@ else:
 ''' check if the a cDNA reference genome is given '''
 # set the sequence type based on the user's options
 noCref, Cref, CrefMake, noRef, noAdap, Adap, makCref, AllCheck, NoSeqType = seqCheck(SEQ_TYP, 
-                        MAKCREF, CREADS,REFERENCE,CREF,CADAP)
+                        MAKCREF, CREADS, REFERENCE, CREF, CADAP)
 if noCref is True:
     logger.info('You have chosen to make a transcriptome assembly but provided no reads.' +
     'Please provide the reads and run again')
@@ -396,8 +394,8 @@ else:
     logger.info("Some checks have failed. Please check your options again")
 '''set some variables'''
 # check the demultiplexer choice
-G_KIT, Q_KIT, DBRACK_LENGTH, CBRACK_LENGTH, FILT_QUAL = filterOptions(DEMULP_CHOICE,
-                                                                    args,FILTER_PASS)
+G_KIT, Q_KIT, DBRACK_LENGTH, CBRACK_LENGTH, FILT_QUAL, DNA_FILT_LENGTH, CDNA_FILT_LENGTH  = filterOptions(
+    DEMULP_CHOICE, args, FILTER_PASS)
 if CLEAN is True:
     logger.info("You have chosen to do clean up. Large files and directories" +
           "will be deleted as the pipelines progress. The most " +
@@ -406,7 +404,7 @@ if CLEAN is True:
           "the basecalling script and demultiplexing can be " +
           "with the -rd parameter")
 #############################################################################################
-# Making global directories
+''' Making global directories '''
 #############################################################################################
 # folder to hold demultiplexed reads
 dem_dir = os.path.join(OUT_DIR, "Demultiplexed")
@@ -425,7 +423,7 @@ if FILTER_PASS is False:
     rnm_path = os.path.join(OUT_DIR, "Isolate_Demultiplexed_Reads")
     makeDirectory(rnm_path)
 #############################################################################################
-# Call functions
+''' Call functions '''
 #############################################################################################
 '''Demultiplexing. Function: demultip is in the Preprocessing.py script'''
     # check if the user just wants to re-try demultiplexing
@@ -438,13 +436,13 @@ if REDEMULP is True:
     sys.exit(1)
 else:
     # run demultiplexing function
-    demultip(INP_DIR, dem_dir, DEMULP_CHOICE, THREADS, Q_KIT)
+    #demultip(INP_DIR, dem_dir, DEMULP_CHOICE, THREADS, Q_KIT)
     pass
 #############################################################################################
 ''' Zip the demultiplexed reads '''
 #############################################################################################
 logger.info("Zipping the fastq files")
-zipFiles(dem_dir,THREADS)
+zipFiles(dem_dir, THREADS)
 logger.info("Files zipped")
 #############################################################################################
 '''QC raw reads'''
@@ -458,6 +456,122 @@ for barcode in BARCODES:
         stats = os.path.join(stats_dir, "Raw_Demultiplexed_Reads", barcode)
         # run the runQC function that is in the 'Preprocessing.py' script
         run_QC(dem_file, barcode, stats, ofile, THREADS)
-
-
-
+#############################################################################################
+''' filtering: if filter check is true '''
+#############################################################################################
+if FILTER_PASS is True:
+    # if the user sequence type is just DNA
+    if SEQ_TYP == "dna":
+        ready_path = dna_filter(DNA_ISOLATE, dem_dir, BARCODES, 
+                                OUT_DIR, DNA_FILT_LENGTH, FILT_QUAL, 
+                                stats_dir, THREADS)
+        logger.info('The raw DNA demultiplexed reads have been successfully filtered ' + 
+                    'and saved in ' + ready_path)
+        logger.info('Please remember that the files are now renamed')
+        logger.info('Stats have been done and saved in ' + stats_dir)
+    # if the user sequence type is just cdna 
+    elif SEQ_TYP == "cdna":
+        ready_path = cdna_filter(CDNA_ISOLATE, dem_dir, BARCODES, OUT_DIR,
+                                CDNA_FILT_LENGTH, FILT_QUAL, stats_dir, THREADS)
+        logger.info('The raw cDNA demultiplexed reads have been successfully filtered ' + 
+                    'and saved in ' + ready_path)
+        logger.info('Please remember that the files are now renamed')
+        logger.info('Stats have been done and saved in ' + stats_dir)
+    # if both sequence types are to be used
+    elif SEQ_TYP == "both":
+        ''' dna filtering first '''
+        ready_path = dna_filter(DNA_ISOLATE, dem_dir, BARCODES, 
+                                OUT_DIR, DNA_FILT_LENGTH, FILT_QUAL, 
+                                stats_dir, THREADS)
+        logger.info('The raw DNA demultiplexed reads have been successfully filtered ' + 
+                    'and saved in ' + ready_path)
+        # cdna filtering
+        ready_path = cdna_filter(CDNA_ISOLATE, dem_dir, BARCODES, OUT_DIR,
+                                CDNA_FILT_LENGTH, FILT_QUAL, stats_dir, THREADS)
+        logger.info('The raw cDNA demultiplexed reads have been successfully filtered ' + 
+                    'and saved in ' + ready_path)
+        logger.info('Please remember that the files are now renamed')
+        logger.info('Stats have been done and saved in ' + stats_dir)
+    '''if reads are not being filtered then move the demultiplexed file'''
+else:
+    logger.info('You chosen not to filter your reads.')
+    logger.info('Your demultiplexed reads will be used to proceed')
+    ready_path = rnm_path
+    count = 0
+    for barcode in BARCODES:
+        isola = ISOLATES[count]
+        dem_file = dem_dir + "/" + barcode + ".fastq.gz"
+        rnm_file = ready_path + "/" + isola + ".fastq.gz"
+        # set the moving command
+        rnMv_Stff = ' '.join(["mv", dem_file, rnm_file])
+        print(rnMv_Stff)
+        # run the command
+        subprocess.call(rnMv_Stff, shell=True)
+        count += 1
+#############################################################################################
+''' align against reference genome and de-duplicate first check if the sequence type 
+    is dna or cdna align function is in DNA_processing.py'''
+#############################################################################################
+if SEQ_TYP == "dna":
+    # use the DNA isolate list
+    print('Aligning reads against the reference')
+    DNA_align(ready_path, DNA_ISOLATE, stats_dir, temp_align_out, 
+                aligned_out, THREADS, REFERENCE)
+    logger.info('Alignment complete and saved in ' + aligned_out)
+    logger.info('De-duplication complete')
+elif SEQ_TYP == "cdna":
+    print('Aligning reads against the reference')
+    cDNA_align(ready_path, CDNA_ISOLATE, CREADS, OUT_DIR, SCPTS,
+                MAKCREF, CADAP, REFERENCE, CREF, REF_GFF,
+                THREADS, MXMEM, aligned_out)
+    logger.info('Alignment complete and saved in ' + aligned_out)
+    logger.info('De-duplication complete')
+elif SEQ_TYP == "both":
+    # do dna alignment
+    print('Aligning reads against the DNA reference')
+    DNA_align(ready_path, DNA_ISOLATE, stats_dir, temp_align_out, 
+                aligned_out, THREADS, REFERENCE)
+    # do cdna alignment
+    print('Aligning reads against the transcriptome reference')
+    cDNA_align(ready_path)
+    logger.info('DNA and cDNA Alignment complete and saved in ' + aligned_out)
+    logger.info('De-duplication complete')
+#############################################################################################
+'''Assemble the reads'''
+#############################################################################################
+for isolate in ISOLATES:
+    toAlgn = os.path.join(aligned_out, isolate + "VsRef_unmapped_renamed.fastq")
+    assemOut = os.path.join(OUT_DIR, "DeNoVo_Assembly", isolate)
+    assemSt = os.path.join(stats_dir, "DeNoVo_Assembly", isolate)
+    makeDirectory(assemOut)
+    makeDirectory(assemSt)
+    # assemble
+    run_flye(toAlgn, assemOut, THREADS)
+    logger.info('Assembly completed with metaFlye')
+    # assembly-stats
+    assemFile = os.path.join(assemOut, "assembly.fasta")
+    assemO = os.path.join(assemSt, "RAW_assembly_stats.txt")
+    run_AssemStats(isolate, assemFile, assemO)
+    # quast
+    qAssmO = os.path.join(assemSt, "Quast")
+    rawQ = raw_Quast(assemFile, qAssmO, str(THREADS))
+    logger.info('Quast assessment done and saved in ' + rawQ)
+     # copy the assembly file to a more accessible point
+    logging.info('The generated assembly will be copied to a new folder')
+    assemS = os.path.join(OUT_DIR, "Assemblies", "Raw")
+    makeDirectory(assemS)
+    coAssemFile = os.path.join(assemS, isolate + ".fasta")
+    shutil.copy2(assemFile, coAssemFile)
+    logging.info('The generated assembly files have been copied to ' + assemS)
+    # kraken
+    krakOut = os.path.join(OUT_DIR, "Kraken", isolate)
+    makeDirectory(krakOut)
+    runCkrak = ' '.join([KRAK, "--db", KRAKDB, coAssemFile, "--threads", str(THREADS),
+            "--output", krakOut + "/All_classifications.tsv",
+            "--report", krakOut + "/report.txt", "--use-names",
+            "--unclassified-out", krakOut + "/unclassified.fastq",
+            "--classified-out", krakOut + "/classified.fastq", 
+            "--minimum-hit-groups", str(KRAK_THRESH), "--report-minimizer-data"])
+    print(runCkrak)
+    subprocess.call(runCkrak, shell=True)
+    print("Kraken complete")
