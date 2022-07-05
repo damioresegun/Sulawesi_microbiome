@@ -573,18 +573,16 @@ if SEQ_TYP == "cdna":
     logger.info('Carrying out Kraken and Bracken classification for cDNA isolates')
     for isolate in CDNA_ISOLATE:
         # run the kraken classification function
-        sequt = "cDNA"
-        iaw = isolate.split("_")[0]
-        ckrakOut = krakBrak(KRAK, KRAKDB, BRAK, iaw, sequt, aligned_out, OUT_DIR,
+        assemOut = os.path.join(OUT_DIR, "DeNoVo_Assembly", isolate, "assembly.fasta")
+        ckrakOut = krakBrak(KRAK, KRAKDB, BRAK, isolate, assemOut, OUT_DIR,
                             CBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS)
         logger.info('Kraken and Bracken completed for ' + isolate)
         logger.info('Kraken and Bracken outputs saved in ' + ckrakOut)
 elif SEQ_TYP == "dna":
     logger.info('Carrying out Kraken and Bracken classification for DNA isolates')
     for isolate in DNA_ISOLATE:
-        sequt = "DNA"
-        iaw = isolate.split("_")[0]
-        krakOut = krakBrak(KRAK, KRAKDB, BRAK, iaw, sequt, aligned_out, OUT_DIR,
+        assemOut = os.path.join(OUT_DIR, "DeNoVo_Assembly", isolate, "assembly.fasta")
+        krakOut = krakBrak(KRAK, KRAKDB, BRAK, isolate, assemOut, OUT_DIR,
                             DBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS)
         logger.info('Kraken and Bracken completed for ' + isolate)
         logger.info('Kraken and Bracken outputs saved in ' + krakOut)
@@ -592,17 +590,15 @@ elif SEQ_TYP == "both":
     logger.info('Carrying out Kraken and Bracken classification for cDNA isolates')
     for isolate in CDNA_ISOLATE:
         # run the kraken classification function
-        sequt = "cDNA"
-        iaw = isolate.split("_")[0]
-        ckrakOut = krakBrak(KRAK, KRAKDB, BRAK, iaw, sequt, aligned_out, OUT_DIR,
+        assemOut = os.path.join(OUT_DIR, "DeNoVo_Assembly", isolate, "assembly.fasta")
+        ckrakOut = krakBrak(KRAK, KRAKDB, BRAK, isolate, assemOut, OUT_DIR,
                             CBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS)
         logger.info('Kraken and Bracken completed for ' + isolate)
         logger.info('Kraken and Bracken outputs saved in ' + ckrakOut)
     logger.info('Carrying out Kraken and Bracken classification for DNA isolates')
     for isolate in DNA_ISOLATE:
-        sequt = "DNA"
-        iaw = isolate.split("_")[0]
-        krakOut = krakBrak(KRAK, KRAKDB, BRAK, iaw, sequt, aligned_out, OUT_DIR,
+        assemOut = os.path.join(OUT_DIR, "DeNoVo_Assembly", isolate, "assembly.fasta")
+        krakOut = krakBrak(KRAK, KRAKDB, BRAK, isolate, assemOut, OUT_DIR,
                             DBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS)
         logger.info('Kraken and Bracken completed for ' + isolate)
         logger.info('Kraken and Bracken outputs saved in ' + krakOut)
