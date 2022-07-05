@@ -31,7 +31,10 @@ library(data.table)
 
 #### Load data
 ```{r}
-url <- 
+# download the test biom file
+#url <- "https://github.com/damioresegun/Sulawesi_microbiome/blob/dev-branch/MicrobiomeAnalysis/MFMRCFS0822_Combined.biom"
+#inpBiom <- "C:/Users/dro/Desktop/BiomFile.biom" # choose where you want to put it
+#download.file(url, inpBiom)
 args = c("C:/Users/dro/Dropbox/Work/MacLaptop/JCS_Project/Pipeline/Sulawesi_microbiome/MicrobiomeAnalysis", "MFMRCFS0822_Combined.biom")
 workD = args[1] # the working directory
 inpBiom = args[2] # the input biom file
@@ -223,6 +226,13 @@ commonly quoted are the Shannon and Simpson diversity indices.
 ```{r}
 rareBac <- rarefy_even_depth(JCSData, rngseed = 12355, replace = FALSE)
 (alpha_div <- estimate_richness(rareBac))
+```
+Here, the diversity indices calculated using the Shannon and Simpson indices provide very similar outputs. For the Shannon 
+diversity, the higher the value, the more diverse the sample composition is. The Shannon diversity is influenced by species 
+richness and rare species. On the other hand, Simpson diversity index 
+is between 0 and 1 where 0 represents infinite diversity and 1 representing no diversity. It gives more weight to evenness
+and common species.
+```{r}
 # save to file
 write.csv(alpha_div, "AlphaDiversity.csv", row.names = TRUE)
 # Plot the diversity indices
