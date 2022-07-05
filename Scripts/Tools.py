@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 '''Script to hold various small tools and recurring commands'''
 
-from asyncio import threads
 import subprocess
 import os
 from Bio.SeqIO.QualityIO import FastqGeneralIterator
@@ -20,7 +19,7 @@ def makeDirectory(directory):
         os.makedirs(directory)
 
 
-def zipFiles(directory):
+def zipFiles(directory, threads):
     '''Function to zip files using multi-threads. Function is set up
     to take in only files, not folder. Input is the path to the 
     directory holding the files to be zipped. For each file in that
@@ -29,7 +28,7 @@ def zipFiles(directory):
     Output: None
     Usage: zipFiles(path/to/directory)
     '''
-    for file in os.listdir(directory,threads):
+    for file in os.listdir(directory):
         zipDir = os.path.join(directory, file)
         runZip = ' '.join(["pigz --best", zipDir, "-p", str(threads)])
         print(runZip)
