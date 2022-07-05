@@ -533,7 +533,9 @@ elif SEQ_TYP == "both":
                 aligned_out, THREADS, REFERENCE)
     # do cdna alignment
     print('Aligning reads against the transcriptome reference')
-    cDNA_align(ready_path)
+    cDNA_align(ready_path, CDNA_ISOLATE, CREADS, OUT_DIR, SCPTS,
+                MAKCREF, CADAP, REFERENCE, CREF, REF_GFF,
+                THREADS, MXMEM, aligned_out)
     logger.info('DNA and cDNA Alignment complete and saved in ' + aligned_out)
     logger.info('De-duplication complete')
 #############################################################################################
