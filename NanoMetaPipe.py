@@ -26,7 +26,7 @@ from Scripts.PreChecks import filterOptions, isolateList, seqCheck
 from Scripts.Racon_Medaka import runRacon, runMedaka
 from Scripts.Preprocessing import cdna_filter, demultip, dna_filter, filt_qc, run_QC
 from Scripts.DNA_processing import DNA_align, align, cDNA_align
-from Scripts.Tools import run_flye, zipFiles, makeDirectory, run_AssemStats, raw_Quast
+from Scripts.Tools import krakBrak, run_flye, zipFiles, makeDirectory, run_AssemStats, raw_Quast
 #############################################################################################
 def get_args():
     '''
@@ -565,15 +565,44 @@ for isolate in ISOLATES:
     coAssemFile = os.path.join(assemS, isolate + ".fasta")
     shutil.copy2(assemFile, coAssemFile)
     logging.info('The generated assembly files have been copied to ' + assemS)
-    # kraken
-    krakOut = os.path.join(OUT_DIR, "Kraken", isolate)
-    makeDirectory(krakOut)
-    runCkrak = ' '.join([KRAK, "--db", KRAKDB, coAssemFile, "--threads", str(THREADS),
-            "--output", krakOut + "/All_classifications.tsv",
-            "--report", krakOut + "/report.txt", "--use-names",
-            "--unclassified-out", krakOut + "/unclassified.fastq",
-            "--classified-out", krakOut + "/classified.fastq", 
-            "--minimum-hit-groups", str(KRAK_THRESH), "--report-minimizer-data"])
-    print(runCkrak)
-    subprocess.call(runCkrak, shell=True)
-    print("Kraken complete")
+#############################################################################################
+'''Kraken classification'''
+#############################################################################################
+# if the user chose to use cdna reads
+if SEQ_TYP == "cdna":
+    logger.info('Carrying out Kraken and Bracken classification for cDNA isolates')
+    for isolate in CDNA_ISOLATE:
+        # run the kraken classification function
+        sequt = "cDNA"
+        iaw = isolate.split("_")[0]
+        ckrakOut = krakBrak(KRAK, KRAKDB, BRAK, iaw, sequt, aligned_out, OUT_DIR,
+                            CBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS)
+        logger.info('Kraken and Bracken completed for ' + isolate)
+        logger.info('Kraken and Bracken outputs saved in ' + ckrakOut)
+elif SEQ_TYP == "dna":
+    logger.info('Carrying out Kraken and Bracken classification for DNA isolates')
+    for isolate in DNA_ISOLATE:
+        sequt = "DNA"
+        iaw = isolate.split("_")[0]
+        krakOut = krakBrak(KRAK, KRAKDB, BRAK, iaw, sequt, aligned_out, OUT_DIR,
+                            DBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS)
+        logger.info('Kraken and Bracken completed for ' + isolate)
+        logger.info('Kraken and Bracken outputs saved in ' + krakOut)
+elif SEQ_TYP == "both":
+    logger.info('Carrying out Kraken and Bracken classification for cDNA isolates')
+    for isolate in CDNA_ISOLATE:
+        # run the kraken classification function
+        sequt = "cDNA"
+        iaw = isolate.split("_")[0]
+        ckrakOut = krakBrak(KRAK, KRAKDB, BRAK, iaw, sequt, aligned_out, OUT_DIR,
+                            CBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS)
+        logger.info('Kraken and Bracken completed for ' + isolate)
+        logger.info('Kraken and Bracken outputs saved in ' + ckrakOut)
+    logger.info('Carrying out Kraken and Bracken classification for DNA isolates')
+    for isolate in DNA_ISOLATE:
+        sequt = "DNA"
+        iaw = isolate.split("_")[0]
+        krakOut = krakBrak(KRAK, KRAKDB, BRAK, iaw, sequt, aligned_out, OUT_DIR,
+                            DBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS)
+        logger.info('Kraken and Bracken completed for ' + isolate)
+        logger.info('Kraken and Bracken outputs saved in ' + krakOut)

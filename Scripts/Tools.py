@@ -135,3 +135,41 @@ def raw_Quast(assembly,output_dir,threads):
     except FileNotFoundError:
         print('Could not find the file')
     return out_dir
+
+
+def krakBrak(krak, krakdb, brak, isolate, seq, alignedOut, 
+                outDir, blength, krakThres, brakThres, threads):
+    '''
+    Function to carry out kraken classsification and bracken re-estimation
+    '''
+    # set the path to the deduplicated fastq of the isolate given
+    combs = isolate + "_" + seq
+    toAlgn = os.path.join(alignedOut, combs + "VsRef_unmapped_renamed.fastq")
+    # outputs of this function will be saved in a folder called 'Kraken'
+    krakOut = os.path.join(outDir, "Kraken", combs)
+    makeDirectory(krakOut)
+    # build the kraken command
+    runCkrak = ' '.join([krak, "--db", krakdb, toAlgn, "--threads", str(threads),
+            "--output", krakOut + "/All_classifications.tsv",
+            "--report", krakOut + "/FULLreport.txt", "--use-names",
+            "--unclassified-out", krakOut + "/unclassified.fastq",
+            "--classified-out", krakOut + "/classified.fastq", 
+            "--minimum-hit-groups", str(krakThres), 
+            "--report-minimizer-data --confidence 0.1"])
+    print(runCkrak)
+    subprocess.call(runCkrak, shell = True)
+    print("Kraken complete")
+    # make a classic kraken command output
+    runCutKrak = ' '.join(["cut -f1-3,6-8", krakOut + "/FULLreport.txt", 
+                            ">", krakOut + "/ClassicFullReport"])
+    subprocess.call(runCutKrak, shell=True)
+    # carry out bracken
+    runBrak = ' '.join([brak, "-d", krakdb, "-i", krakOut + "/ClassicFullReport", "-o", 
+            krakOut + "/bracken_report.txt", "-t", str(brakThres), "-w",
+            krakOut + "/bracken_KrakenReport.txt", "-r", str(blength)])
+    print(runBrak)
+    #
+    subprocess.call(runBrak, shell=True)
+    print("Bracken complete")
+    # return the path to the isolate kraken folder
+    return krakOut

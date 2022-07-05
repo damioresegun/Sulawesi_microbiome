@@ -1,0 +1,6 @@
+# Sulawesi Project Microbiome Analysis
+##### Author: Damilola R Oresegun
+This is a developing script to carry out microbiome analysis for the Sulawesi Macaque fecal metagenome project. 
+The faecal sample were extracted from healthy wild macaques and sequenced using the Oxford Nnaopore MinION. After this
+the reads were put through a pipeline developed by the author to carry out assembly of the metagenomic sequences using
+metaFlye. Following this, the assembled contigs were binned with 
