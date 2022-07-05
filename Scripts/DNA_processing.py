@@ -69,9 +69,9 @@ def DNA_align(ready_path, dnaIsolate, statsDir, temp_align_out, aligned_out,
                 threads, reference):
     for isolate in dnaIsolate:
         # set the right filtered/demultiplexed file
-        file = os.path.join(ready_path, isolate, + "fastq.gz")
+        file = os.path.join(ready_path, isolate + "fastq.gz")
         # set/make the stats directory
-        statss = os.path.join(statsDir, "Alignment_Vs_Reference" + isolate)
+        statss = os.path.join(statsDir, "Alignment_Vs_Reference", isolate)
         makeDirectory(statss)
         # run the alignment of DNA against the reference
         hs_reads = align(isolate, file, temp_align_out, aligned_out, threads,
@@ -89,7 +89,7 @@ def cDNA_align(ready_path, cdnaIsolate, creads, outDir, scripts, makeCref,
                 adapters, reference, creference, gff, threads, memory, aligned_out):
     for isolate in cdnaIsolate:
         # set the right filtered/demultiplexed file
-        file = os.path.join(ready_path, isolate, + "fastq.gz")
+        file = os.path.join(ready_path, isolate + "fastq.gz")
         # set/make the stats directory
         cdOut = os.path.join(outDir, "cDNA_Processing")
         makeDirectory(cdOut)
