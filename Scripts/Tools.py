@@ -137,19 +137,16 @@ def raw_Quast(assembly,output_dir,threads):
     return out_dir
 
 
-def krakBrak(krak, krakdb, brak, isolate, seq, alignedOut, 
+def krakBrak(krak, krakdb, brak, isolate, assembly, 
                 outDir, blength, krakThres, brakThres, threads):
     '''
     Function to carry out kraken classsification and bracken re-estimation
     '''
-    # set the path to the deduplicated fastq of the isolate given
-    combs = isolate + "_" + seq
-    toAlgn = os.path.join(alignedOut, combs + "VsRef_unmapped_renamed.fastq")
     # outputs of this function will be saved in a folder called 'Kraken'
-    krakOut = os.path.join(outDir, "Kraken", combs)
+    krakOut = os.path.join(outDir, "Kraken", isolate)
     makeDirectory(krakOut)
     # build the kraken command
-    runCkrak = ' '.join([krak, "--db", krakdb, toAlgn, "--threads", str(threads),
+    runCkrak = ' '.join([krak, "--db", krakdb, assembly, "--threads", str(threads),
             "--output", krakOut + "/All_classifications.tsv",
             "--report", krakOut + "/FULLreport.txt", "--use-names",
             "--unclassified-out", krakOut + "/unclassified.fastq",
@@ -173,3 +170,4 @@ def krakBrak(krak, krakdb, brak, isolate, seq, alignedOut,
     print("Bracken complete")
     # return the path to the isolate kraken folder
     return krakOut
+
