@@ -436,7 +436,7 @@ if REDEMULP is True:
     sys.exit(1)
 else:
     # run demultiplexing function
-    #demultip(INP_DIR, dem_dir, DEMULP_CHOICE, THREADS, Q_KIT)
+    demultip(INP_DIR, dem_dir, DEMULP_CHOICE, THREADS, Q_KIT)
     pass
 #############################################################################################
 ''' Zip the demultiplexed reads '''
@@ -455,7 +455,7 @@ for barcode in BARCODES:
         # set the stats path
         stats = os.path.join(stats_dir, "Raw_Demultiplexed_Reads", barcode)
         # run the runQC function that is in the 'Preprocessing.py' script
-        #run_QC(dem_file, barcode, stats, ofile, THREADS)
+        run_QC(dem_file, barcode, stats, ofile, THREADS)
 #############################################################################################
 ''' filtering: if filter check is true '''
 #############################################################################################
