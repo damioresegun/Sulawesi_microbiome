@@ -168,6 +168,16 @@ def krakBrak(krak, krakdb, brak, isolate, assembly,
     #
     subprocess.call(runBrak, shell=True)
     print("Bracken complete")
+    # convert the bracken report to Krona
+    kroIso = os.path.join(krakOut, isolate)
+    runKrona = ' '.join(["kreport2krona.py -r ", krakOut + "/bracken_KrakenReport.txt",
+                         "-o", kroIso + ".krona"])
+    runKtImp = ' '.join(["ktImportText", kroIso + ".krona", "-o", kroIso + ".html"])
+    print(runKrona)
+    print(runKtImp)
+    subprocess.call(runKrona, shell = True)
+    subprocess.call(runKtImp, shell = True)
+    print("Krona charts generated and saved in " + krakOut)
     # return the path to the isolate kraken folder
     return krakOut
 

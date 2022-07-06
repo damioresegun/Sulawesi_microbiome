@@ -480,6 +480,7 @@ if FILTER_PASS is True:
     # if both sequence types are to be used
     elif SEQ_TYP == "both":
         ''' dna filtering first '''
+        ready_path = os.path.join(OUT_DIR, "Filtered_Demultiplexed_Reads")
         ready_path = dna_filter(DNA_ISOLATE, dem_dir, BARCODES, 
                                 OUT_DIR, DNA_FILT_LENGTH, FILT_QUAL, 
                                 stats_dir, THREADS)
@@ -553,7 +554,7 @@ for isolate in ISOLATES:
     # assembly-stats
     assemFile = os.path.join(assemOut, "assembly.fasta")
     assemO = os.path.join(assemSt, "RAW_assembly_stats.txt")
-    run_AssemStats(isolate, assemFile, assemO)
+    run_AssemStats(assemFile, assemO)
     # quast
     qAssmO = os.path.join(assemSt, "Quast")
     rawQ = raw_Quast(assemFile, qAssmO, str(THREADS))
