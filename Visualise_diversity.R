@@ -5,7 +5,8 @@
 #
 ###############################################################################
 # ensure clear workspace
-rm(list = ls()) 
+rm(list = ls())
+#checkin this
 # install and set libraries
 if (!requireNamespace("BiocManager", quietly = TRUE))
    install.packages("BiocManager")
