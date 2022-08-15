@@ -5,10 +5,10 @@
 NanoMetaPipe=/home/doresegu/scratch/private/JCS_MetaGenome_Project/NanoMetaPipe.py
 reference=/home/doresegu/scratch/private/JCS_MetaGenome_Project/Index/Macaca_nemestrina_reference.fna.gz
 gff=/home/doresegu/scratch/private/JCS_MetaGenome_Project/Index/Macaca_nemestrina_genomic.gff.gz
-basecalled=/home/doresegu/scratch/private/JCS_MetaGenome_Project/MFMRCFS0322_WuM010/Basecalled/pass
-barcodes="barcode05 barcode06"
-isolates="MFMRCFS0322_DNA MFMRCFS0322_dscDNA"
-output=/home/doresegu/scratch/private/JCS_MetaGenome_Project/MFMRCFS0322_WuM010
+basecalled=/home/doresegu/scratch/private/JCS_MetaGenome_Project/MFMRCFS0622_WuM004/Basecalled/pass
+barcodes="barcode11 barcode12"
+isolates="MFMRCFS0622_DNA MFMRCFS0622_dscDNA"
+output=/home/doresegu/scratch/private/JCS_MetaGenome_Project/MFMRCFS0622_WuM004
 threads=24
 demultiplexer="qcat"
 cdna_reads="/home/doresegu/scratch/private/JCS_MetaGenome_Project/Index/SRR10248516_1.fastq
