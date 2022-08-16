@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from Bio.SeqIO.QualityIO import FastqGeneralIterator
+
 itn = "/home/doresegu/scratch/private/JCS_MetaGenome_Project/MFMRCFS0322_WuM010/Host_Free_Reads/MFMRCFS0322_dscDNAVsRef_unmapped.fastq"
 out = "/home/doresegu/scratch/private/JCS_MetaGenome_Project/MFMRCFS0322_WuM010/Host_Free_Reads/MFMRCFS0322_dscDNAVsRef_unmapped_renamed.fastq"
 
