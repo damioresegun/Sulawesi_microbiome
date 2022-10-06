@@ -21,7 +21,7 @@ import logging.handlers
 import time
 import shutil
 from pathlib import Path
-from PipelineDevScripts.NanoMetaPipe_assemblyApproach import CDNA_ISOLATE, DNA_ISOLATE
+#from PipelineDevScripts.NanoMetaPipe_assemblyApproach import CDNA_ISOLATE, DNA_ISOLATE
 from Scripts.PreChecks import filterOptions, isolateList, seqCheck
 from Scripts.Racon_Medaka import runRacon, runMedaka
 from Scripts.Preprocessing import cdna_filter, demultip, dna_filter, filt_qc, run_QC
@@ -99,6 +99,11 @@ def get_args():
                                 action = "store", type = str, 
                                 help = "Full path to the installed bracken. " +
                                 "If in the $PATH, simply write bracken", required = True)
+    required_args.add_argument("-nd", "--ncbi_db",
+                                dest = "NCBI_DB",
+                                action = "store", type = str,
+                                help = "The full path to the local NCBI nt database", 
+                                required = True)
     #########################################################################################
     optional_args = parser.add_argument_group('Optional arguments')
     optional_args.add_argument("-bt", "--bracken-hit-threshold", 
@@ -267,7 +272,8 @@ MAKCREF = args.make_cDNA_Reference
 CREADS = args.reference_cDNA_Reads
 CADAP = args.cDNA_Adapters
 BRAK = args.Bracken_PATH
-BRAKTHRESH = args.Bracken_Hit_Threshold                        
+BRAKTHRESH = args.Bracken_Hit_Threshold 
+NCBI_DB = args.NCBI_DB                       
 SCPTS = os.path.join(FILE_DIRECTORY, "Scripts") # Scripts folder will be part of the package
 # INDEX = os.path.join(FILEDIRETORY, "Index") # Index folder will be part of the package. WILL INCLUDE TruSeq.fa and readme file with links for the SRR sequences and the macaca nemestrina downloads
 ####################################################################################################################################################
@@ -557,7 +563,7 @@ for isolate in ISOLATES:
     run_AssemStats(assemFile, assemO)
     # quast
     qAssmO = os.path.join(assemSt, "Quast")
-    rawQ = raw_Quast(assemFile, qAssmO, str(THREADS))
+    rawQ = raw_Quast(assemFile, qAssmO, str(THREADS), NCBI_DB)
     logger.info('Quast assessment done and saved in ' + rawQ)
      # copy the assembly file to a more accessible point
     logging.info('The generated assembly will be copied to a new folder')
@@ -603,3 +609,4 @@ elif SEQ_TYP == "both":
                             DBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS)
         logger.info('Kraken and Bracken completed for ' + isolate)
         logger.info('Kraken and Bracken outputs saved in ' + krakOut)
+

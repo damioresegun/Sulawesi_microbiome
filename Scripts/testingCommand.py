@@ -2,8 +2,8 @@
 
 from Bio.SeqIO.QualityIO import FastqGeneralIterator
 
-itn = "/home/doresegu/scratch/private/JCS_MetaGenome_Project/MFMRCFS0322_WuM010/Host_Free_Reads/MFMRCFS0322_dscDNAVsRef_unmapped.fastq"
-out = "/home/doresegu/scratch/private/JCS_MetaGenome_Project/MFMRCFS0322_WuM010/Host_Free_Reads/MFMRCFS0322_dscDNAVsRef_unmapped_renamed.fastq"
+itn = "/home/doresegu/scratch/private/JCS_MetaGenome_Project/MFMRCFS0522_WuM008/Host_Free_Reads/MFMRCFS0522_dscDNAVsRef_unmapped.fastq"
+out = "/home/doresegu/scratch/private/JCS_MetaGenome_Project/MFMRCFS0522_WuM008/Host_Free_Reads/MFMRCFS0522_dscDNAVsRef_unmapped_renamed.fastq"
 
 def filter_fastq_file(in_fastq, out_fastq):
     ''' The function uses Biopython to iterate through a fastq
@@ -37,4 +37,5 @@ def filter_fastq_file(in_fastq, out_fastq):
     out_file.close()
     inp_file.close()
 
+if __name__ == '__main__':
     filter_fastq_file(itn, out)

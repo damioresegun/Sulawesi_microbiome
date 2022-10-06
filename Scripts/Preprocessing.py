@@ -31,8 +31,6 @@ def demultip(INP_DIR, dem_dir, DEMULP_CHOICE, THREADS, KIT):
             # constructs the qcat command
             runQdem = ' '.join(["cat", dem_INP, "| qcat -b", dem_dir, 
             "--detect-middle -t", str(THREADS), "--trim -k", KIT])
-        # joins the individual words into a single command string
-            #runQdem = ' '.join(qdem)
             # print for logging
             print(runQdem)
             # run qcat command
@@ -46,7 +44,6 @@ def demultip(INP_DIR, dem_dir, DEMULP_CHOICE, THREADS, KIT):
                     "-r -q 0 -t", str(THREADS), "--compress_fastq -x auto",
                     "--detect_mid_strand_barcodes --trim_barcodes", 
                     "--trim_adapters"])
-            #runGdem = ' '.join(gdem)
             print(runGdem)
             subprocess.call(runGdem, shell=True)
             print('Demultiplexing complete')
