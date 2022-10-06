@@ -111,7 +111,7 @@ def run_AssemStats(in_file,out_file):
         print('File not found error. Check your input file again')
 
 
-def raw_Quast(assembly,output_dir,threads):
+def raw_Quast(assembly,output_dir,threads, NCBI_DB):
     # make output folder
     try:
         out_dir = os.path.join(output_dir, "Raw")
@@ -124,12 +124,12 @@ def raw_Quast(assembly,output_dir,threads):
                 pass
             else:
                 print('No Quast files found in the existing folder. Proceeding with Quast')
-                runRawQ = ' '.join(["quast -t", threads, assembly, "-o", out_dir, "-f --circos --meta"])
+                runRawQ = ' '.join(["metaquast -t", threads, assembly, "-o", out_dir, "-f --circos --blast-db", NCBI_DB, "--gene-finding"])
                 print(runRawQ)
                 subprocess.call(runRawQ, shell=True)
         else:
             os.makedirs(out_dir)
-            runRawQ = ' '.join(["quast -t", threads, assembly, "-o", out_dir, "-f --circos --meta"])
+            runRawQ = ' '.join(["metaquast -t", threads, assembly, "-o", out_dir, "-f --circos --blast-db", NCBI_DB, "--gene-finding"])
             print(runRawQ)
             subprocess.call(runRawQ, shell=True)
     except FileNotFoundError:
