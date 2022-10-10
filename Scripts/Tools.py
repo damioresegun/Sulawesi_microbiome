@@ -137,29 +137,173 @@ def raw_Quast(assembly,output_dir,threads, NCBI_DB):
     return out_dir
 
 
-def krakBrak(krak, krakdb, brak, isolate, assembly, 
-                outDir, blength, krakThres, brakThres, threads):
+def krakBrak(krak, krakdb, brak, isolate, assembly, reads,
+                outDir, blength, krakThres, brakThres, threads, mode):
     '''
     Function to carry out kraken classsification and bracken re-estimation
     '''
     # outputs of this function will be saved in a folder called 'Kraken'
-    krakOut = os.path.join(outDir, "Kraken", isolate)
-    makeDirectory(krakOut)
-    # build the kraken command
-    runCkrak = ' '.join([krak, "--db", krakdb, assembly, "--threads", str(threads),
-            "--output", krakOut + "/All_classifications.tsv",
-            "--report", krakOut + "/FULLreport.txt", "--use-names",
-            "--unclassified-out", krakOut + "/unclassified.fastq",
-            "--classified-out", krakOut + "/classified.fastq", 
-            "--minimum-hit-groups", str(krakThres), 
-            "--report-minimizer-data --confidence 0.1"])
-    print(runCkrak)
-    subprocess.call(runCkrak, shell = True)
-    print("Kraken complete")
-    # make a classic kraken command output
-    runCutKrak = ' '.join(["cut -f1-3,6-8", krakOut + "/FULLreport.txt", 
-                            ">", krakOut + "/ClassicFullReport.txt"])
-    subprocess.call(runCutKrak, shell=True)
+    if mode == "assembly":
+        krakOut = os.path.join(outDir, "Kraken", isolate)
+        makeDirectory(krakOut)
+    elif mode == "reads":
+        krakOut = os.path.join(outDir, "Kraken", isolate)
+        makeDirectory(krakOut)
+    elif mode == "both":
+        krakOut = os.path.join(outDir, "Kraken", "Assembly", isolate)
+        krakOut2 = os.path.join(outDir, "Kraken", "Reads", isolate)
+        makeDirectory(krakOut)
+        makeDirectory(krakOut2)
+    # build the kraken command depending on the chosen mode
+    if mode == "assembly":
+        runKrak = ' '.join([krak, "--db", krakdb, assembly, "--threads", str(threads),
+                "--output", krakOut + "/All_classifications.tsv",
+                "--report", krakOut + "/FULLreport.txt", "--use-names",
+                "--unclassified-out", krakOut + "/unclassified.fastq",
+                "--classified-out", krakOut + "/classified.fastq",  
+                "--report-minimizer-data"])
+        print(runKrak)
+        subprocess.call(runKrak, shell = True)
+        print("Kraken in assembly mode complete")
+        # make a classic kraken command output
+        runCutKrak = ' '.join(["cut -f1-3,6-8", krakOut + "/FULLreport.txt", 
+                                ">", krakOut + "/ClassicFullReport.txt"])
+        subprocess.call(runCutKrak, shell=True)
+        # carry out bracken
+        runBrak = ' '.join([brak, "-d", krakdb, "-i", krakOut + "/ClassicFullReport.txt", "-o", 
+                krakOut + "/bracken_report.txt", "-t", str(brakThres), "-w",
+                krakOut + "/bracken_KrakenReport.txt", "-r", str(blength)])
+        print(runBrak)
+        #
+        subprocess.call(runBrak, shell=True)
+        print("Bracken complete")
+        # convert the bracken report to Krona
+        kroIso = os.path.join(krakOut, isolate)
+        runKrona = ' '.join(["kreport2krona.py -r ", krakOut + "/bracken_KrakenReport.txt",
+                            "-o", kroIso + ".krona"])
+        runKtImp = ' '.join(["ktImportText", kroIso + ".krona", "-o", kroIso + ".html"])
+        print(runKrona)
+        print(runKtImp)
+        subprocess.call(runKrona, shell = True)
+        subprocess.call(runKtImp, shell = True)
+        print("Krona charts generated and saved in " + krakOut)
+    #
+    #
+    # kraken + bracken for reads only mode
+    if mode == "reads":
+        runKrak = ' '.join([krak, "--db", krakdb, reads, "--threads", str(threads),
+                "--output", krakOut + "/All_classifications.tsv",
+                "--report", krakOut + "/FULLreport.txt", "--use-names",
+                "--unclassified-out", krakOut + "/unclassified.fastq",
+                "--classified-out", krakOut + "/classified.fastq", 
+                "--minimum-hit-groups", str(krakThres), 
+                "--report-minimizer-data"])
+        print(runKrak)
+        subprocess.call(runKrak, shell = True)
+        print("Kraken in reads mode complete")
+        # make a classic kraken command output
+        runCutKrak = ' '.join(["cut -f1-3,6-8", krakOut + "/FULLreport.txt", 
+                                ">", krakOut + "/ClassicFullReport.txt"])
+        subprocess.call(runCutKrak, shell=True)
+        # carry out bracken
+        runBrak = ' '.join([brak, "-d", krakdb, "-i", krakOut + "/ClassicFullReport.txt", "-o", 
+                krakOut + "/bracken_report.txt", "-t", str(brakThres), "-w",
+                krakOut + "/bracken_KrakenReport.txt", "-r", str(blength)])
+        print(runBrak)
+        #
+        subprocess.call(runBrak, shell=True)
+        print("Bracken complete")
+        # convert the bracken report to Krona
+        kroIso = os.path.join(krakOut, isolate)
+        runKrona = ' '.join(["kreport2krona.py -r ", krakOut + "/bracken_KrakenReport.txt",
+                            "-o", kroIso + ".krona"])
+        runKtImp = ' '.join(["ktImportText", kroIso + ".krona", "-o", kroIso + ".html"])
+        print(runKrona)
+        print(runKtImp)
+        subprocess.call(runKrona, shell = True)
+        subprocess.call(runKtImp, shell = True)
+        print("Krona charts generated and saved in " + krakOut)
+    # kraken + bracken if both assembly and reads are chosen
+    if mode == "both":
+        # run the assembly mode for kraken
+        runKrak = ' '.join([krak, "--db", krakdb, assembly, "--threads", str(threads),
+                "--output", krakOut + "/All_classifications.tsv",
+                "--report", krakOut + "/FULLreport.txt", "--use-names",
+                "--unclassified-out", krakOut + "/unclassified.fastq",
+                "--classified-out", krakOut + "/classified.fastq",  
+                "--report-minimizer-data"])
+        print(runKrak)
+        subprocess.call(runKrak, shell = True)
+        print("Kraken in assembly mode complete")
+        #
+        #
+        # run the reads mode for kraken
+        runKrak2 = ' '.join([krak, "--db", krakdb, reads, "--threads", str(threads),
+                "--output", krakOut2 + "/All_classifications.tsv",
+                "--report", krakOut2 + "/FULLreport.txt", "--use-names",
+                "--unclassified-out", krakOut2 + "/unclassified.fastq",
+                "--classified-out", krakOut2 + "/classified.fastq", 
+                "--minimum-hit-groups", str(krakThres), 
+                "--report-minimizer-data"])
+        print(runKrak2)
+        subprocess.call(runKrak2, shell = True)
+        print("Kraken in reads mode complete")
+        #
+        #
+        # make a classic kraken command output for the assembly
+        runCutKrak = ' '.join(["cut -f1-3,6-8", krakOut + "/FULLreport.txt", 
+                                ">", krakOut + "/ClassicFullReport.txt"])
+        print(runCutKrak)
+        subprocess.call(runCutKrak, shell=True)
+        # make a classic kraken command output for the reads
+        runCutKrak2 = ' '.join(["cut -f1-3,6-8", krakOut2 + "/FULLreport.txt", 
+                                ">", krakOut2 + "/ClassicFullReport.txt"])
+        print(runCutKrak)
+        subprocess.call(runCutKrak2, shell=True)
+        #
+        #
+        # carry out bracken for assembly taxonomic classification
+        runBrak = ' '.join([brak, "-d", krakdb, "-i", krakOut + "/ClassicFullReport.txt", "-o", 
+                krakOut + "/bracken_report.txt", "-t", str(brakThres), "-w",
+                krakOut + "/bracken_KrakenReport.txt", "-r", str(blength)])
+        print(runBrak)
+        subprocess.call(runBrak, shell=True)
+        # carry out bracken for reads taxonomic classification
+        runBrak2 = ' '.join([brak, "-d", krakdb, "-i", krakOut2 + "/ClassicFullReport.txt", "-o", 
+                krakOut2 + "/bracken_report.txt", "-t", str(brakThres), "-w",
+                krakOut2 + "/bracken_KrakenReport.txt", "-r", str(blength)])
+        print(runBrak2)
+        #
+        subprocess.call(runBrak2, shell=True)
+        print("Bracken complete")
+        #
+        #
+        # convert the bracken reports to Krona
+        kroIso = os.path.join(krakOut, isolate)
+        runKrona = ' '.join(["kreport2krona.py -r ", krakOut + "/bracken_KrakenReport.txt",
+                            "-o", kroIso + ".krona"])
+        runKtImp = ' '.join(["ktImportText", kroIso + ".krona", "-o", kroIso + ".html"])
+        print(runKrona)
+        print(runKtImp)
+        subprocess.call(runKrona, shell = True)
+        subprocess.call(runKtImp, shell = True)
+        # reads
+        kroIso2 = os.path.join(krakOut2, isolate)
+        runKrona2 = ' '.join(["kreport2krona.py -r ", krakOut2 + "/bracken_KrakenReport.txt",
+                            "-o", kroIso2 + ".krona"])
+        runKtImp2 = ' '.join(["ktImportText", kroIso2 + ".krona", "-o", kroIso2 + ".html"])
+        print(runKrona2)
+        print(runKtImp2)
+        subprocess.call(runKrona2, shell = True)
+        subprocess.call(runKtImp2, shell = True)
+        print("Krona charts generated and saved in " + krakOut)
+    if mode == "assembly" or mode == "reads":
+        return krakOut
+    elif mode == "both":
+        return krakOut, krakOut2
+
+""" 
+
     # carry out bracken
     runBrak = ' '.join([brak, "-d", krakdb, "-i", krakOut + "/ClassicFullReport.txt", "-o", 
             krakOut + "/bracken_report.txt", "-t", str(brakThres), "-w",
@@ -179,5 +323,5 @@ def krakBrak(krak, krakdb, brak, isolate, assembly,
     subprocess.call(runKtImp, shell = True)
     print("Krona charts generated and saved in " + krakOut)
     # return the path to the isolate kraken folder
-    return krakOut
+    return krakOut """
 

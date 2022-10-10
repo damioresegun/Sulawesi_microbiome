@@ -190,8 +190,8 @@ def get_args():
                                 action = "store", type = int, default = 5,
                                 help = "A minimum number of groups that must be matched " +
                                 "to place a contig into a taxonomic group")
-    optional_args.add_argument("-km", "--kraken_method",
-                                dest = "Kraken Method",
+    optional_args.add_argument("-km", "--kraken_mode",
+                                dest = "Kraken_Mode",
                                 action = "store",
                                 choices = ["reads", "assembly", "both"],
                                 type = str, default = "assembly",
@@ -282,7 +282,8 @@ CREADS = args.reference_cDNA_Reads
 CADAP = args.cDNA_Adapters
 BRAK = args.Bracken_PATH
 BRAKTHRESH = args.Bracken_Hit_Threshold 
-NCBI_DB = args.NCBI_DB                       
+NCBI_DB = args.NCBI_DB      
+KMODE = args.Kraken_Mode                  
 SCPTS = os.path.join(FILE_DIRECTORY, "Scripts") # Scripts folder will be part of the package
 # INDEX = os.path.join(FILEDIRETORY, "Index") # Index folder will be part of the package. WILL INCLUDE TruSeq.fa and readme file with links for the SRR sequences and the macaca nemestrina downloads
 ####################################################################################################################################################
@@ -589,33 +590,102 @@ if SEQ_TYP == "cdna":
     logger.info('Carrying out Kraken and Bracken classification for cDNA isolates')
     for isolate in CDNA_ISOLATE:
         # run the kraken classification function
-        assemOut = os.path.join(OUT_DIR, "DeNoVo_Assembly", isolate, "assembly.fasta")
-        ckrakOut = krakBrak(KRAK, KRAKDB, BRAK, isolate, assemOut, OUT_DIR,
-                            CBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS)
+        if KMODE == "assembly":
+            assemFile = os.path.join(OUT_DIR, "DeNoVo_Assembly", isolate, "assembly.fasta")
+            readFile = os.path.join(OUT_DIR, "DeNoVo_Assembly", isolate, "assembly.fasta")## needed but not used
+            ckrakOut = krakBrak(KRAK, KRAKDB, BRAK, isolate, assemFile, readFile, OUT_DIR,
+                            CBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS, KMODE)
+        elif KMODE == "reads":
+            readFile = os.path.join(aligned_out, isolate + "VsRef_unmapped_renamed.fastq")
+            assemFile = os.path.join(aligned_out, isolate + "VsRef_unmapped_renamed.fastq") ## needed but not used
+            ckrakOut = krakBrak(KRAK, KRAKDB, BRAK, isolate, assemFile, readFile, OUT_DIR,
+                            CBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS, KMODE)
+        elif KMODE == "both":
+            assemFile = os.path.join(OUT_DIR, "DeNoVo_Assembly", isolate, "assembly.fasta")
+            readFile = os.path.join(aligned_out, isolate + "VsRef_unmapped_renamed.fastq")
+            ckrakOut1, ckrakOut2 = krakBrak(KRAK, KRAKDB, BRAK, isolate, assemFile, readFile, OUT_DIR,
+                            CBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS, KMODE)
         logger.info('Kraken and Bracken completed for ' + isolate)
         logger.info('Kraken and Bracken outputs saved in ' + ckrakOut)
 elif SEQ_TYP == "dna":
     logger.info('Carrying out Kraken and Bracken classification for DNA isolates')
     for isolate in DNA_ISOLATE:
-        assemOut = os.path.join(OUT_DIR, "DeNoVo_Assembly", isolate, "assembly.fasta")
-        krakOut = krakBrak(KRAK, KRAKDB, BRAK, isolate, assemOut, OUT_DIR,
-                            DBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS)
+        if KMODE == "assembly":
+            assemFile = os.path.join(OUT_DIR, "DeNoVo_Assembly", isolate, "assembly.fasta")
+            readFile = os.path.join(OUT_DIR, "DeNoVo_Assembly", isolate, "assembly.fasta")## needed but not used
+            krakOut = krakBrak(KRAK, KRAKDB, BRAK, isolate, assemFile, readFile, OUT_DIR,
+                            DBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS, KMODE)
+        elif KMODE == "reads":
+            readFile = os.path.join(aligned_out, isolate + "VsRef_unmapped_renamed.fastq")
+            assemFile = os.path.join(aligned_out, isolate + "VsRef_unmapped_renamed.fastq") ## needed but not used
+            krakOut = krakBrak(KRAK, KRAKDB, BRAK, isolate, assemFile, readFile, OUT_DIR,
+                            DBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS, KMODE)
+        elif KMODE == "both":
+            assemFile = os.path.join(OUT_DIR, "DeNoVo_Assembly", isolate, "assembly.fasta")
+            readFile = os.path.join(aligned_out, isolate + "VsRef_unmapped_renamed.fastq")
+            krakOut1, krakOut2 = krakBrak(KRAK, KRAKDB, BRAK, isolate, assemFile, readFile, OUT_DIR,
+                                DBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS, KMODE)
         logger.info('Kraken and Bracken completed for ' + isolate)
         logger.info('Kraken and Bracken outputs saved in ' + krakOut)
 elif SEQ_TYP == "both":
     logger.info('Carrying out Kraken and Bracken classification for cDNA isolates')
     for isolate in CDNA_ISOLATE:
         # run the kraken classification function
-        assemOut = os.path.join(OUT_DIR, "DeNoVo_Assembly", isolate, "assembly.fasta")
-        ckrakOut = krakBrak(KRAK, KRAKDB, BRAK, isolate, assemOut, OUT_DIR,
-                            CBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS)
+        if KMODE == "assembly":
+            assemFile = os.path.join(OUT_DIR, "DeNoVo_Assembly", isolate, "assembly.fasta")
+            readFile = os.path.join(OUT_DIR, "DeNoVo_Assembly", isolate, "assembly.fasta")## needed but not used
+            ckrakOut = krakBrak(KRAK, KRAKDB, BRAK, isolate, assemFile, readFile, OUT_DIR,
+                            CBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS, KMODE)
+        elif KMODE == "reads":
+            readFile = os.path.join(aligned_out, isolate + "VsRef_unmapped_renamed.fastq")
+            assemFile = os.path.join(aligned_out, isolate + "VsRef_unmapped_renamed.fastq") ## needed but not used
+            ckrakOut = krakBrak(KRAK, KRAKDB, BRAK, isolate, assemFile, readFile, OUT_DIR,
+                            CBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS, KMODE)
+        elif KMODE == "both":
+            assemFile = os.path.join(OUT_DIR, "DeNoVo_Assembly", isolate, "assembly.fasta")
+            readFile = os.path.join(aligned_out, isolate + "VsRef_unmapped_renamed.fastq")
+            ckrakOut1, ckrakOut2 = krakBrak(KRAK, KRAKDB, BRAK, isolate, assemFile, readFile, OUT_DIR,
+                                CBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS, KMODE)
         logger.info('Kraken and Bracken completed for ' + isolate)
         logger.info('Kraken and Bracken outputs saved in ' + ckrakOut)
     logger.info('Carrying out Kraken and Bracken classification for DNA isolates')
     for isolate in DNA_ISOLATE:
-        assemOut = os.path.join(OUT_DIR, "DeNoVo_Assembly", isolate, "assembly.fasta")
-        krakOut = krakBrak(KRAK, KRAKDB, BRAK, isolate, assemOut, OUT_DIR,
-                            DBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS)
+        if KMODE == "assembly":
+            assemFile = os.path.join(OUT_DIR, "DeNoVo_Assembly", isolate, "assembly.fasta")
+            readFile = os.path.join(OUT_DIR, "DeNoVo_Assembly", isolate, "assembly.fasta")## needed but not used
+            krakOut = krakBrak(KRAK, KRAKDB, BRAK, isolate, assemFile, readFile, OUT_DIR,
+                            DBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS, KMODE)
+        elif KMODE == "reads":
+            readFile = os.path.join(aligned_out, isolate + "VsRef_unmapped_renamed.fastq")
+            assemFile = os.path.join(aligned_out, isolate + "VsRef_unmapped_renamed.fastq") ## needed but not used
+            krakOut = krakBrak(KRAK, KRAKDB, BRAK, isolate, assemFile, readFile, OUT_DIR,
+                            DBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS, KMODE)
+        elif KMODE == "both":
+            assemFile = os.path.join(OUT_DIR, "DeNoVo_Assembly", isolate, "assembly.fasta")
+            readFile = os.path.join(aligned_out, isolate + "VsRef_unmapped_renamed.fastq")
+            krakOut1, krakOut2 = krakBrak(KRAK, KRAKDB, BRAK, isolate, assemFile, readFile, OUT_DIR,
+                            DBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS, KMODE)
         logger.info('Kraken and Bracken completed for ' + isolate)
         logger.info('Kraken and Bracken outputs saved in ' + krakOut)
-
+logger.info("Taxonomic classification completed")
+if SEQ_TYP == "cdna":
+    if KMODE == "assembly" or KMODE == "reads":
+        logger.info('Kraken and Bracken outputs are saved in ' + os.path.dirname(ckrakOut))
+        logger.info
+    elif KMODE == "both":
+        logger.info('Kraken and Bracken outputs are saved in ' + os.path.dirname(ckrakOut1) + ' and ' + os.path.dirname(ckrakOut2))
+elif SEQ_TYP == "dna":
+    if KMODE == "assembly" or KMODE == "reads":
+        logger.info('Kraken and Bracken outputs are saved in ' + os.path.dirname(krakOut))
+    elif KMODE == "both":
+        logger.info('Kraken and Bracken outputs are saved in ' + os.path.dirname(krakOut1) + ' and ' + os.path.dirname(krakOut2))
+elif SEQ_TYP == "both":
+    if KMODE == "assembly" or KMODE == "reads":
+        logger.info('Kraken and Bracken outputs for the cdna samples are saved in ' + os.path.dirname(ckrakOut))
+        logger.info('Kraken and Bracken outputs for the dna samples are saved in ' + os.path.dirname(krakOut))
+    elif KMODE == "both":
+        logger.info('Kraken and Bracken outputs for the cdna assemblies are saved in ' + os.path.dirname(ckrakOut1))
+        logger.info('Kraken and Bracken outputs for the cdna reads are saved in ' + os.path.dirname(ckrakOut2))
+        logger.info('Kraken and Bracken outputs for the dna assemblies are saved in ' + os.path.dirname(krakOut1))
+        logger.info('Kraken and Bracken outputs for the dna reads are saved in ' + os.path.dirname(krakOut2))
+    
