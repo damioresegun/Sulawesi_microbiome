@@ -27,7 +27,7 @@ def get_args():
     file_directory = os.path.realpath(__file__).split("SSU_rRNA")[0]
     if not os.path.isfile(os.path.join(file_directory, "SSU_rRNA.py")):
         file_directory = os.path.join(file_directory, "SSU_rRNA")
-    else:
+    if not os.path.isfile(os.path.join(file_directory, "SSU_rRNA.py")):
         print("Can't locate the correct path to the script")
     #######################################################################################################
     required_args = parser.add_argument_group('Required arguments')
@@ -43,8 +43,7 @@ def get_args():
                                 help = "Choose which mode to run the script. In 'create' " +
                                 "the script will require a candidates file (-c) to make " +
                                 "a HMM profile. In 'run' mode, the script will require a " +
-                                "previouly made HMM profile (-p) to run the rest of the script",
-                                required = True)
+                                "previouly made HMM profile (-p) to run the rest of the script")
     required_args.add_argument("-o", "--output",
                                 dest = "OutputDIR", type = str,
                                 action = "store",
@@ -96,7 +95,7 @@ THREADS = args.Threads
 ####################################################################################################################################################
 ''' Run the script and functions '''
 ####################################################################################################################################################
-def checkInputs(smode):
+def checkInputs(smode,ffile):
     if smode == "create":
         print("Script will run in create mode. Checking for candidate file")
         if not CFILE:
@@ -112,24 +111,24 @@ def checkInputs(smode):
             print("HMM profile not empty. The script will proceed")
             print("However, be aware that if the file used with -p is not a HMM profile, " +
             "the script will fail downstream.")
-    if FFILE.endswith('.gz'):
+    if ffile.endswith('.gz'):
         print("Input reads file is Gzipped. Unzipping now")
-        deZip = ' '.join(["pigz -d", FFILE, "-p"+str(THREADS)])
+        deZip = ' '.join(["pigz -d", ffile, "-p"+str(THREADS)])
         print(deZip)
         subprocess.call(deZip, shell = True)
-        FFILE = os.path.abspath(FFILE).split(".gz")[0]
+        ffile = os.path.abspath(ffile).split(".gz")[0]
         print("Input reads file unzipped")
-    elif FFILE.endswith('.fastq'):
+    if ffile.endswith('.fastq'):
         print("Input reads is a FASTQ. Will convert to FASTA")
-        FAFILE = os.path.abspath(FFILE).split(".fastq")[0]
-        makQ = ' '.join("sed -n '1~4s/^@/>/p; 2~4p' ", FFILE, ">", 
-                    os.path.abspath(FFILE).split(".fastq")[0]+".fasta")
+        FAFILE = os.path.abspath(ffile).split(".fastq")[0]
+        makQ = ' '.join(["sed -n '1~4s/^@/>/p; 2~4p' ", ffile, ">", 
+                    os.path.abspath(ffile).split(".fastq")[0]+".fasta"])
         print(makQ)
         subprocess.call(makQ, shell = True)
-        FFILE = os.path.abspath(FFILE).split(".fastq")[0]+".fasta"
+        ffile = os.path.abspath(ffile).split(".fastq")[0]+".fasta"
 
-
+checkInputs(SMODE,FFILE)
     
 
 
-check if the input reads end with fastq. if so then convert to fasta and then use
+#check if the input reads end with fastq. if so then convert to fasta and then use
