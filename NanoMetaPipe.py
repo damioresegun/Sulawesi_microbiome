@@ -190,6 +190,15 @@ def get_args():
                                 action = "store", type = int, default = 5,
                                 help = "A minimum number of groups that must be matched " +
                                 "to place a contig into a taxonomic group")
+    optional_args.add_argument("-km", "--kraken_method",
+                                dest = "Kraken Method",
+                                action = "store",
+                                choices = ["reads", "assembly", "both"],
+                                type = str, default = "assembly",
+                                help = "Choose the method to use with kraken taxonomic " +
+                                "classification. Classification can be done with just " +
+                                "the host-free reads, the metagenome assembly or both. " +
+                                "Default is [assembly].")
     optional_args.add_argument("-n", "--name", 
                                 dest = "Experiment_Name",
                                 action = "store", type = str,
