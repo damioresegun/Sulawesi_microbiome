@@ -60,13 +60,13 @@ saved in a newly generated directory name 'Filtered_Demultiplexed_Reads'
 in the output directory indicated by the user.
 """
 def dna_filter(DNA_ISOLATE, dem_dir, BARCODES, OUT_DIR, 
-                DNA_FILT_LENGTH, FILT_QUAL,stats_dir,THREADS):
+                DNA_FILT_LENGTH, FILT_QUAL,stats_dir,THREADS,scrpts):
     # set isolate to the indexed DNA_ISOLATE
     count = 0
     isola = DNA_ISOLATE[count]
     ''' run the filt_qc function that is in the 'Preprocessing.py' script
     and set it to a variable '''
-    ready_path = filt_qc(dem_dir, BARCODES[count], isola,
+    ready_path = filt_qc(dem_dir, BARCODES[count], isola+"_unformatted",
                                         OUT_DIR, DNA_FILT_LENGTH, FILT_QUAL)
     print('The raw demultiplexed reads have been successfully filtered ' + 
         'and saved in ' + ready_path)
@@ -76,7 +76,13 @@ def dna_filter(DNA_ISOLATE, dem_dir, BARCODES, OUT_DIR,
     print('Now running QC of filtered reads')
     # make a txt file with the barcode for filename
     ofile = DNA_ISOLATE[count] + ".txt"
+    dem_filer = ready_path + "/" + isola + "_unformatted.fastq.gz"
     dem_file = ready_path + "/" + isola + ".fastq.gz"
+    # reformat the fastq
+    # reformat the fastq
+    runFmt = ' '.join([scrpts+"/convert_fx_2_fx.py", "-i", dem_filer, "-o", dem_file, "-m fq"])
+    print(runFmt)
+    subprocess.call(runFmt, shell = True)
     # set a temporary filename
     temp = BARCODES[count] + "_" + isola
     stats = os.path.join(stats_dir, "Filtered_Demultiplexed_Reads", temp)
@@ -87,13 +93,13 @@ def dna_filter(DNA_ISOLATE, dem_dir, BARCODES, OUT_DIR,
 
 
 def cdna_filter(CDNA_ISOLATE, dem_dir, BARCODES, OUT_DIR, 
-                CDNA_FILT_LENGTH, FILT_QUAL,stats_dir,THREADS):
+                CDNA_FILT_LENGTH, FILT_QUAL,stats_dir,THREADS,scrpts):
     # set isolate to the indexed CDNA_ISOLATE
     count = 0
     cisola = CDNA_ISOLATE[count]
     ''' run the filt_qc function that is in the 'Preprocessing.py' script
     and set it to a variable '''
-    ready_path = filt_qc(dem_dir, BARCODES[count], cisola,
+    ready_path = filt_qc(dem_dir, BARCODES[count], cisola+"_unformatted",
                                         OUT_DIR, CDNA_FILT_LENGTH, FILT_QUAL)
     print('The raw demultiplexed reads have been successfully filtered ' + 
         'and saved in ' + ready_path)
@@ -103,9 +109,12 @@ def cdna_filter(CDNA_ISOLATE, dem_dir, BARCODES, OUT_DIR,
     print('Now running QC of filtered reads')
     # make a txt file with the barcode for filename
     ofile = CDNA_ISOLATE[count] + ".txt"
+    dem_filer = ready_path + "/" + cisola + "_unformatted.fastq.gz"
     dem_file = ready_path + "/" + cisola + ".fastq.gz"
     # reformat the fastq
-    
+    runFmt = ' '.join([scrpts+"/convert_fx_2_fx.py", "-i", dem_filer, "-o", dem_file, "-m fq"])
+    print(runFmt)
+    subprocess.call(runFmt, shell = True)
     # set a temporary filename
     temp = BARCODES[count] + "_" + cisola
     stats = os.path.join(stats_dir, "Filtered_Demultiplexed_Reads", temp)

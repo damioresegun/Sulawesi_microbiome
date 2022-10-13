@@ -480,7 +480,7 @@ if FILTER_PASS is True:
     if SEQ_TYP == "dna":
         ready_path = dna_filter(DNA_ISOLATE, dem_dir, BARCODES, 
                                 OUT_DIR, DNA_FILT_LENGTH, FILT_QUAL, 
-                                stats_dir, THREADS)
+                                stats_dir, THREADS, SCPTS)
         logger.info('The raw DNA demultiplexed reads have been successfully filtered ' + 
                     'and saved in ' + ready_path)
         logger.info('Please remember that the files are now renamed')
@@ -488,7 +488,7 @@ if FILTER_PASS is True:
     # if the user sequence type is just cdna 
     elif SEQ_TYP == "cdna":
         ready_path = cdna_filter(CDNA_ISOLATE, dem_dir, BARCODES, OUT_DIR,
-                                CDNA_FILT_LENGTH, FILT_QUAL, stats_dir, THREADS)
+                                CDNA_FILT_LENGTH, FILT_QUAL, stats_dir, THREADS, SCPTS)
         logger.info('The raw cDNA demultiplexed reads have been successfully filtered ' + 
                     'and saved in ' + ready_path)
         logger.info('Please remember that the files are now renamed')
@@ -499,12 +499,12 @@ if FILTER_PASS is True:
         ready_path = os.path.join(OUT_DIR, "Filtered_Demultiplexed_Reads")
         ready_path = dna_filter(DNA_ISOLATE, dem_dir, BARCODES, 
                                 OUT_DIR, DNA_FILT_LENGTH, FILT_QUAL, 
-                                stats_dir, THREADS)
+                                stats_dir, THREADS, SCPTS)
         logger.info('The raw DNA demultiplexed reads have been successfully filtered ' + 
                     'and saved in ' + ready_path)
         # cdna filtering
         ready_path = cdna_filter(CDNA_ISOLATE, dem_dir, BARCODES, OUT_DIR,
-                                CDNA_FILT_LENGTH, FILT_QUAL, stats_dir, THREADS)
+                                CDNA_FILT_LENGTH, FILT_QUAL, stats_dir, THREADS, SCPTS)
         logger.info('The raw cDNA demultiplexed reads have been successfully filtered ' + 
                     'and saved in ' + ready_path)
         logger.info('Please remember that the files are now renamed')
