@@ -9,7 +9,7 @@ basecalled=/home/doresegu/scratch/private/JCS_MetaGenome_Project/MFMRCFS0522_WuM
 barcodes="barcode09 barcode10"
 isolates="MFMRCFS0522_DNA MFMRCFS0522_dscDNA"
 output=/home/doresegu/scratch/private/JCS_MetaGenome_Project/OctoberOutputs/MFMRCFS0522_WuM008
-threads=12
+threads=24
 demultiplexer="qcat"
 cdna_reads="/home/doresegu/scratch/private/JCS_MetaGenome_Project/Index/SRR10248516_1.fastq
             /home/doresegu/scratch/private/JCS_MetaGenome_Project/Index/SRR10248516_2.fastq"
@@ -31,7 +31,7 @@ kraken_mode="both"
 mkdir -p $output
 touch ${output}/logfile.txt
 # both command and transcriptome path command
-run="python3 $NanoMetaPipe -b $basecalled -c $barcodes -e $isolates -r $reference -o $output -kb $krakenDB -kr $kraken -w -d $demultiplexer -dfl $DnaFilt -cfl $CdnaFilt -t $threads -g $gff -s $sequence_type -cr $cref -mxm $maxMem -br $bracken -bt $brackenThres -nd $ncbi_db -kt $kraken_mode -kt $krakThres 2>&1 | tee ${output}/logfile.txt"
+run="python3 $NanoMetaPipe -b $basecalled -c $barcodes -e $isolates -r $reference -o $output -kb $krakenDB -kr $kraken -w -d $demultiplexer -dfl $DnaFilt -cfl $CdnaFilt -t $threads -g $gff -s $sequence_type -cr $cref -mxm $maxMem -br $bracken -bt $brackenThres -nd $ncbi_db -km $kraken_mode -kt $krakThres 2>&1 | tee ${output}/logfile.txt"
 
 # cdna command and transcriptome path command
 #run="python3 $NanoMetaPipe -b $basecalled -c $barcodes -e $isolates -r $reference -o $output -kb $krakenDB -kr $kraken -w -d $demultiplexer -t $threads -g $gff -s $sequence_type -cr $cref -mxm $maxMem 2>&1 | tee ${output}/logfile.txt"

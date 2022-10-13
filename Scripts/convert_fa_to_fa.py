@@ -7,7 +7,7 @@
 # November 2016. The James Hutton Insitute, Dundee, UK.
 # Shared by PT to DRO July 2019
 # Adapted: Damilola Oresegun (DRO)
-# Why: adapted this script to reformat fastq files and convert fastq to fastq
+# Why: adapted this script to reformat fast* files and convert fastq to fasta
 # Adapted: July 2019. School of Medicine, The University of St Andrews.
 
 from Bio import SeqIO
@@ -18,11 +18,15 @@ from sys import stdin,argv
 import sys
 from optparse import OptionParser
 
-def convert_file(in_file, out_file):
-    # Convert fastq to reformatted fastq
-    #SeqIO.convert(in_file, "fastq", out_file, "fastq")
-    # Uncomment the one below to convert fastq to fasta
-    SeqIO.convert(in_file, "fasta", out_file, "fasta")
+def convert_file(in_file, out_file, mode):
+    if mode == "fq":
+        # Convert fastq to reformatted fastq
+        SeqIO.convert(in_file, "fastq", out_file, "fastq")
+    elif mode == "fa":
+        # Uncomment the one below to convert fastq to fasta
+        SeqIO.convert(in_file, "fasta", out_file, "fasta")
+    elif mode == "fqfa":
+        SeqIO.convert(in_file, "fastq", out_file, "fasta")
     
 if "-v" in sys.argv or "--version" in sys.argv:
     print ("v0.0.2")
@@ -31,9 +35,9 @@ if "-v" in sys.argv or "--version" in sys.argv:
 
 usage = """Use as follows:
 
-$ convert_fq_to_fa -i in.fastq -o outfile.fasta
+$ convert_fq_to_fa -i in.fastq -o outfile.fasta -m mode
 
-requires bippython
+requires biopython
 """
 
 parser = OptionParser(usage=usage)
@@ -43,13 +47,17 @@ parser.add_option("-i", dest="in_file", default=None,
 parser.add_option("-o", "--output", dest="out_file", default=None,
                   help="Output filename, fastq",
                   metavar="FILE")
+parser.add_option("-m", "--mode", dest="mode", default=None,
+                 help="Which mode to run in. 'fq' to format fastq to fastq. "+
+                 "'fa' to formart fasta to fasta. 'fqfa' to format fastq to fasta")
 
 
 (options, args) = parser.parse_args()
 
 in_file = options.in_file
 out_file = options.out_file
+mode = options.mode
 
 (options, args) = parser.parse_args()
 # run the program
-convert_file(in_file, out_file)
+convert_file(in_file, out_file, mode)

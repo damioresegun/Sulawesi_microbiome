@@ -25,12 +25,12 @@ CdnaFilt=100
 bracken="bracken"
 brackenThres=10
 ncbi_db="/mnt/shared/apps/databases/ncbi"
-
+kraken_mode="both"
 
 mkdir -p $output
 touch ${output}/logfile.txt
 # both command and transcriptome path command
-run="python3 $NanoMetaPipe -b $basecalled -c $barcodes -e $isolates -r $reference -o $output -kb $krakenDB -kr $kraken -w -d $demultiplexer -dfl $DnaFilt -cfl $CdnaFilt -t $threads -g $gff -s $sequence_type -cr $cref -mxm $maxMem -br $bracken -bt $brackenThres -nd $ncbi_db -kt $krakThres 2>&1 | tee ${output}/logfile.txt"
+run="python3 $NanoMetaPipe -b $basecalled -c $barcodes -e $isolates -r $reference -o $output -kb $krakenDB -kr $kraken -w -d $demultiplexer -dfl $DnaFilt -cfl $CdnaFilt -t $threads -g $gff -s $sequence_type -cr $cref -mxm $maxMem -br $bracken -bt $brackenThres -nd $ncbi_db -km $kraken_mode -kt $krakThres 2>&1 | tee ${output}/logfile.txt"
 
 #mkdir $output
 #touch ${output}/logfile.txt
