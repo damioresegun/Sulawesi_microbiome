@@ -21,18 +21,32 @@ from optparse import OptionParser
 
 def convert_file(in_file, out_file, mode):
     if mode == "fq":
+        # check if the input is zipped
         if in_file.endswith('.gz'):
-            print("Yes")
+            # open the zipped file
             file = gzip.open(in_file, "rt")
+            # reformat
             SeqIO.convert(file, "fastq", out_file, "fastq")
         else:
             # Convert fastq to reformatted fastq
             SeqIO.convert(in_file, "fastq", out_file, "fastq")
     elif mode == "fa":
-        # Uncomment the one below to convert fastq to fasta
-        SeqIO.convert(in_file, "fasta", out_file, "fasta")
+        if in_file.endswith('.gz'):
+            # open the zipped file
+            file = gzip.open(in_file, "rt")
+            # reformat
+            SeqIO.convert(file, "fasta", out_file, "fasta")
+        else:
+            # Uncomment the one below to convert fastq to fasta
+            SeqIO.convert(in_file, "fasta", out_file, "fasta")
     elif mode == "fqfa":
-        SeqIO.convert(in_file, "fastq", out_file, "fasta")
+        if in_file.endswith('.gz'):
+            # open the zipped file
+            file = gzip.open(in_file, "rt")
+            # reformat
+            SeqIO.convert(file, "fastq", out_file, "fasta")
+        else:
+            SeqIO.convert(in_file, "fastq", out_file, "fasta")
     
 if "-v" in sys.argv or "--version" in sys.argv:
     print ("v0.0.2")
