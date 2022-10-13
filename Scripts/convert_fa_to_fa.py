@@ -10,6 +10,7 @@
 # Why: adapted this script to reformat fast* files and convert fastq to fasta
 # Adapted: July 2019. School of Medicine, The University of St Andrews.
 
+import gzip
 from Bio import SeqIO
 
 #os imports
@@ -20,8 +21,13 @@ from optparse import OptionParser
 
 def convert_file(in_file, out_file, mode):
     if mode == "fq":
-        # Convert fastq to reformatted fastq
-        SeqIO.convert(in_file, "fastq", out_file, "fastq")
+        if in_file.endswith('.gz'):
+            print("Yes")
+            file = gzip.open(in_file, "rt")
+            SeqIO.convert(file, "fastq", out_file, "fastq")
+        else:
+            # Convert fastq to reformatted fastq
+            SeqIO.convert(in_file, "fastq", out_file, "fastq")
     elif mode == "fa":
         # Uncomment the one below to convert fastq to fasta
         SeqIO.convert(in_file, "fasta", out_file, "fasta")

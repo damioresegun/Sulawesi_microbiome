@@ -104,6 +104,8 @@ def cdna_filter(CDNA_ISOLATE, dem_dir, BARCODES, OUT_DIR,
     # make a txt file with the barcode for filename
     ofile = CDNA_ISOLATE[count] + ".txt"
     dem_file = ready_path + "/" + cisola + ".fastq.gz"
+    # reformat the fastq
+    
     # set a temporary filename
     temp = BARCODES[count] + "_" + cisola
     stats = os.path.join(stats_dir, "Filtered_Demultiplexed_Reads", temp)
