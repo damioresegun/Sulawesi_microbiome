@@ -14,6 +14,8 @@ import sys
 import subprocess
 import argparse
 
+from Scripts.Tools import makeDirectory
+
 #######################################################################################################
 def get_args():
     '''
@@ -165,7 +167,22 @@ def downloadCandidates(can_list, downloadScript, outdir):
     return outfile
 
 
+def alnMuscle(candidates, prefix, outdir, threads):
+    # check if the output directory exists
+    makeDirectory(outdir)
+    alnOut = os.path.join(outdir, prefix+".aln")
+    runMusc = ' '.join(["muscle -align", candidates, "-output", alnOut, "--threads", str(threads)])
+    print(runMusc)
+    subprocess.call(runMusc, shell = True)
+    print("Muscle multiple sequence alignment complete")
+    print("Starting trimal")
+    trmOut = os.path.join(outdir, prefix+"_clean.fasta")
+    runTrml = ' '.join(["trimal -in", alnOut, "-out", trmOut, "-gappyout"])
+    print(runTrml)
+    subprocess.call(runTrml, shell = True)
 
-checkInputs(SMODE,FFILE)
-downSC = os.path.join(SCPTS, "Download_NCBI_Accession_to_Fasta.py")
-downloadCandidates(CFILE, downSC, OUTDIR)
+if __name__ == '__main__':
+    checkInputs(SMODE,FFILE)
+    downSC = os.path.join(SCPTS, "Download_NCBI_Accession_to_Fasta.py")
+    candidateFile = downloadCandidates(CFILE, downSC, OUTDIR)
+    alnMuscle(candidateFile, ISOLATE, OUTDIR, THREADS)
