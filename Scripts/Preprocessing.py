@@ -34,7 +34,7 @@ def demultip(INP_DIR, dem_dir, DEMULP_CHOICE, THREADS, KIT):
             # print for logging
             print(runQdem)
             # run qcat command
-            #subprocess.call(runQdem, shell=True)
+            subprocess.call(runQdem, shell=True)
             print('Demultiplexing complete')
         # check if the user selected guppy for demultiplexing
         elif DEMULP_CHOICE == "guppy":
