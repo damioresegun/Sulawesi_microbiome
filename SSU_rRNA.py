@@ -213,6 +213,7 @@ if __name__ == '__main__':
     checkInputs(SMODE,FFILE)
     # if the user chooses to create profile:
     if SMODE == "create":
+        print("You have chosen generate a profile. Proceeding")
         # download the candidates
         downSC = os.path.join(SCPTS, "Download_NCBI_Accession_to_Fasta.py")
         candidateFile = downloadCandidates(CFILE, downSC, OUTDIR)
@@ -220,6 +221,10 @@ if __name__ == '__main__':
         trmmed = alnMuscle(candidateFile, PFPREF, OUTDIR, THREADS)
         # build the profile
         hmmprofile = hmmprf(trmmed, OUTDIR, PFPREF, THREADS)
+        print("HMM Profile has been constructed")
+    else: 
+        print("You have provided a profile. Proceeding...")
+    
 
 """ indBuild = ' '.join(["hmmpress", outfile])
     print(indBuild)
