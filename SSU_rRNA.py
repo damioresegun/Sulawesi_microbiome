@@ -66,6 +66,13 @@ def get_args():
                                 action = "store",
                                 help = "Full path to a previously made HMM profile. This script " +
                                 "was designed for profile made from DNA sequences! Not proteins!!!")
+    optional_args.add_argument("-pp", "--profile_prefix",
+                                dest = "Profile_prefix", type = str,
+                                action = "store",
+                                default = "MyHMMProfile",
+                                help = "Only to be used when creating a profile. Use this option " +
+                                "provide a specific prefix name to save the create HMM profile. " +
+                                "Default is [MyHMMProfile]")
     optional_args.add_argument("-s", "--isolate",
                                 dest = "Isolate", type = str,
                                 action = "store",
@@ -95,6 +102,7 @@ CFILE = args.Candidates
 PFILE = args.Profile
 ISOLATE = args.Isolate
 THREADS = args.Threads
+PFPREF = args.Profile_prefix
 SCPTS = os.path.join(FILE_DIRECTORY, "Scripts")
 ####################################################################################################################################################
 ''' Run the script and functions '''
@@ -168,21 +176,53 @@ def downloadCandidates(can_list, downloadScript, outdir):
 
 
 def alnMuscle(candidates, prefix, outdir, threads):
+    '''
+    Function to carry out multiple sequence alignments of candidate SSU sequences
+    that were downloaded to create a HMM profile
+    Takes in the candidates fasta file, a prefix to save the output files with,
+    the output directory and the number of threads to run the commands.
+
+    Function uses muscle for multiple sequence alignment and then trimal to trim
+    the alignment file 
+    '''
     # check if the output directory exists
     makeDirectory(outdir)
-    alnOut = os.path.join(outdir, prefix+".aln")
+    alnOut = os.path.join(outdir, prefix+"_candidates_aligned.aln")
     runMusc = ' '.join(["muscle -align", candidates, "-output", alnOut, "--threads", str(threads)])
     print(runMusc)
     subprocess.call(runMusc, shell = True)
     print("Muscle multiple sequence alignment complete")
     print("Starting trimal")
-    trmOut = os.path.join(outdir, prefix+"_clean.fasta")
+    trmOut = os.path.join(outdir, prefix+"_candidates_aligned_clean.fasta")
     runTrml = ' '.join(["trimal -in", alnOut, "-out", trmOut, "-gappyout"])
     print(runTrml)
     subprocess.call(runTrml, shell = True)
+    print("Multiple sequence alignment completed")
+    return trmOut
+
+
+def hmmprf(alignedFile, outDIR, prefix, threads):
+    # set the output file
+    outfile = os.path.join(outDIR, prefix+".hmm")
+    runBuild = ' '.join(["hmmbuild --dna --cpu", str(threads), "-n", prefix, outfile, alignedFile])
+    print(runBuild)
+    subprocess.call(shell = True)
+    print("HMM Profile built.")
 
 if __name__ == '__main__':
     checkInputs(SMODE,FFILE)
-    downSC = os.path.join(SCPTS, "Download_NCBI_Accession_to_Fasta.py")
-    candidateFile = downloadCandidates(CFILE, downSC, OUTDIR)
-    alnMuscle(candidateFile, ISOLATE, OUTDIR, THREADS)
+    # if the user chooses to create profile:
+    if SMODE == "create":
+        # download the candidates
+        downSC = os.path.join(SCPTS, "Download_NCBI_Accession_to_Fasta.py")
+        candidateFile = downloadCandidates(CFILE, downSC, OUTDIR)
+        # carry out multiple sequence alignment
+        trmmed = alnMuscle(candidateFile, PFPREF, OUTDIR, THREADS)
+        # build the profile
+        hmmprofile = hmmprf(trmmed, OUTDIR, PFPREF, THREADS)
+
+""" indBuild = ' '.join(["hmmpress", outfile])
+    print(indBuild)
+    subprocess.call(indBuild, shell = True)
+    print("HMM Profile constructed and indexed")
+    hmmpress PlasmodiumSSU.hmm """
