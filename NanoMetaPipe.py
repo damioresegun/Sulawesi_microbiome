@@ -488,7 +488,7 @@ if FILTER_PASS is True:
     # if the user sequence type is just cdna 
     elif SEQ_TYP == "cdna":
         ready_path = cdna_filter(CDNA_ISOLATE, dem_dir, BARCODES, OUT_DIR,
-                                CDNA_FILT_LENGTH, FILT_QUAL, stats_dir, THREADS, SCPTS)
+                                CDNA_FILT_LENGTH, FILT_QUAL, stats_dir, THREADS, SCPTS, SEQ_TYP)
         logger.info('The raw cDNA demultiplexed reads have been successfully filtered ' + 
                     'and saved in ' + ready_path)
         logger.info('Please remember that the files are now renamed')
@@ -504,7 +504,7 @@ if FILTER_PASS is True:
                     'and saved in ' + ready_path)
         # cdna filtering
         ready_path = cdna_filter(CDNA_ISOLATE, dem_dir, BARCODES, OUT_DIR,
-                                CDNA_FILT_LENGTH, FILT_QUAL, stats_dir, THREADS, SCPTS)
+                                CDNA_FILT_LENGTH, FILT_QUAL, stats_dir, THREADS, SCPTS, SEQ_TYP)
         logger.info('The raw cDNA demultiplexed reads have been successfully filtered ' + 
                     'and saved in ' + ready_path)
         logger.info('Please remember that the files are now renamed')

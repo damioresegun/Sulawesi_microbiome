@@ -34,7 +34,7 @@ def demultip(INP_DIR, dem_dir, DEMULP_CHOICE, THREADS, KIT):
             # print for logging
             print(runQdem)
             # run qcat command
-            subprocess.call(runQdem, shell=True)
+            #subprocess.call(runQdem, shell=True)
             print('Demultiplexing complete')
         # check if the user selected guppy for demultiplexing
         elif DEMULP_CHOICE == "guppy":
@@ -93,10 +93,15 @@ def dna_filter(DNA_ISOLATE, dem_dir, BARCODES, OUT_DIR,
 
 
 def cdna_filter(CDNA_ISOLATE, dem_dir, BARCODES, OUT_DIR, 
-                CDNA_FILT_LENGTH, FILT_QUAL,stats_dir,THREADS,scrpts):
+                CDNA_FILT_LENGTH, FILT_QUAL,stats_dir,THREADS,scrpts,seqtyp):
     # set isolate to the indexed CDNA_ISOLATE
-    count = 0
-    cisola = CDNA_ISOLATE[count]
+    if seqtyp == "both":
+        count = 1
+        count2 = 0
+    else:
+        count = 0
+        count2 = 0
+    cisola = CDNA_ISOLATE[count2]
     ''' run the filt_qc function that is in the 'Preprocessing.py' script
     and set it to a variable '''
     ready_path = filt_qc(dem_dir, BARCODES[count], cisola+"_unformatted",
@@ -108,7 +113,7 @@ def cdna_filter(CDNA_ISOLATE, dem_dir, BARCODES, OUT_DIR,
     print('')
     print('Now running QC of filtered reads')
     # make a txt file with the barcode for filename
-    ofile = CDNA_ISOLATE[count] + ".txt"
+    ofile = CDNA_ISOLATE[count2] + ".txt"
     dem_filer = ready_path + "/" + cisola + "_unformatted.fastq.gz"
     dem_file = ready_path + "/" + cisola + ".fastq.gz"
     # reformat the fastq
