@@ -77,12 +77,17 @@ def dna_filter(DNA_ISOLATE, dem_dir, BARCODES, OUT_DIR,
     # make a txt file with the barcode for filename
     ofile = DNA_ISOLATE[count] + ".txt"
     dem_filer = ready_path + "/" + isola + "_unformatted.fastq.gz"
-    dem_file = ready_path + "/" + isola + ".fastq.gz"
+    dem_file = ready_path + "/" + isola + ".fastq"
     # reformat the fastq
     # reformat the fastq
     runFmt = ' '.join([scrpts+"/convert_fx_2_fx.py", "-i", dem_filer, "-o", dem_file, "-m fq"])
     print(runFmt)
     subprocess.call(runFmt, shell = True)
+    # gzip the output file
+    zipEm = ' '.join(["pigz --best", dem_file, "-p", str(THREADS)])
+    print(zipEm)
+    subprocess.call(zipEm, shell = True)
+    dem_file = dem_file+".gz"
     # set a temporary filename
     temp = BARCODES[count] + "_" + isola
     stats = os.path.join(stats_dir, "Filtered_Demultiplexed_Reads", temp)
@@ -115,11 +120,16 @@ def cdna_filter(CDNA_ISOLATE, dem_dir, BARCODES, OUT_DIR,
     # make a txt file with the barcode for filename
     ofile = CDNA_ISOLATE[count2] + ".txt"
     dem_filer = ready_path + "/" + cisola + "_unformatted.fastq.gz"
-    dem_file = ready_path + "/" + cisola + ".fastq.gz"
+    dem_file = ready_path + "/" + cisola + ".fastq"
     # reformat the fastq
     runFmt = ' '.join([scrpts+"/convert_fx_2_fx.py", "-i", dem_filer, "-o", dem_file, "-m fq"])
     print(runFmt)
     subprocess.call(runFmt, shell = True)
+    # gzip the output file
+    zipEm = ' '.join(["pigz --best", dem_file, "-p", str(THREADS)])
+    print(zipEm)
+    subprocess.call(zipEm, shell = True)
+    dem_file = dem_file+".gz"
     # set a temporary filename
     temp = BARCODES[count] + "_" + cisola
     stats = os.path.join(stats_dir, "Filtered_Demultiplexed_Reads", temp)
@@ -150,7 +160,6 @@ def filt_qc(dem_dir,barcode,isolate,OUT_DIR,FILT_LENGTH,FILT_QUAL):
     # construct the nanofilt command
     runFiltSt = ' '.join(["gunzip -c", file_in, "|NanoFilt -l", str(FILT_LENGTH), "-q",
               str(FILT_QUAL), "| gzip >", filt_file_out])
-    #runFiltSt = ' '.join(filtSt)
     print(runFiltSt)
     # run nanofilt command
     subprocess.call(runFiltSt, shell=True)

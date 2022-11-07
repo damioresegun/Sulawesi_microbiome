@@ -647,7 +647,10 @@ elif SEQ_TYP == "both":
             ckrakOut1, ckrakOut2 = krakBrak(KRAK, KRAKDB, BRAK, isolate, assemFile, readFile, OUT_DIR,
                                 CBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS, KMODE)
         logger.info('Kraken and Bracken completed for ' + isolate)
-        logger.info('Kraken and Bracken outputs saved in ' + ckrakOut)
+        if KMODE == "assembly" or KMODE == "reads":
+            logger.info('Kraken and Bracken outputs saved in ' + ckrakOut)
+        elif KMODE == "both":
+            logger.info('Kraken and Bracken outputs saved in ' + ckrakOut1 + 'and ' + ckrakOut2)
     logger.info('Carrying out Kraken and Bracken classification for DNA isolates')
     for isolate in DNA_ISOLATE:
         if KMODE == "assembly":
@@ -666,7 +669,10 @@ elif SEQ_TYP == "both":
             krakOut1, krakOut2 = krakBrak(KRAK, KRAKDB, BRAK, isolate, assemFile, readFile, OUT_DIR,
                             DBRACK_LENGTH, KRAK_THRESH, BRAKTHRESH, THREADS, KMODE)
         logger.info('Kraken and Bracken completed for ' + isolate)
-        logger.info('Kraken and Bracken outputs saved in ' + krakOut)
+        if KMODE == "assembly" or KMODE == "reads":
+            logger.info('Kraken and Bracken outputs saved in ' + krakOut)
+        elif KMODE == "both":
+            logger.info('Kraken and Bracken outputs saved in ' + krakOut1 + 'and ' + krakOut2)
 logger.info("Taxonomic classification completed")
 if SEQ_TYP == "cdna":
     if KMODE == "assembly" or KMODE == "reads":
