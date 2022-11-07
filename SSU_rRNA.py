@@ -14,9 +14,9 @@ import sys
 import subprocess
 import argparse
 from pathlib import Path
+from Bio import SeqIO
 
 from Scripts.Tools import makeDirectory
-import Scripts.fastaExtractor as fastaExtract
 
 #######################################################################################################
 def get_args():
@@ -199,6 +199,28 @@ def checkInputs(smode,ffile):
     return ffile
 
 
+def fastaExtract(hitlist, allReads, output):
+    '''
+    Function to carry out extraction of fasta sequences based on a list of readIDs
+    Takes in a txt file containing a list of readIDs, the full fasta file containing all reads
+    and requires the path to the output fasta file
+    '''
+    readsList = open(hitlist, 'r')
+    outputfile = open(output, 'w')
+    wanted = set()
+    with readsList as f:
+        for line in f:
+            line = line.strip()
+            if line != "":
+                wanted.add(line)
+    fasta_sequences = SeqIO.parse(open(allReads),'fasta')
+    with outputfile as i:
+        for seq in fasta_sequences:
+            if seq.id in wanted:
+                SeqIO.write([seq], i, "fasta")
+    readsList.close()
+    outputfile.close()
+
 def downloadCandidates(can_list, downloadScript, outdir):
     '''
     Function to take in the candidate file list of accessions and then carry out downloading the sequences
@@ -326,8 +348,9 @@ def getReads(input, output, isolate, fasta):
     #subprocess.call(runExt, shell=True) 
     print("Identified read IDs have been extracted. Corresponding reads will now be extracted")
     extReads = os.path.join(output, isolate+"_SSU_reads.fasta")
-    runReExt = ' '.join(["python3", fastaExtract, extID, fasta, extReads])
-    print(runReExt)
+    print(fastaExtract(extID, fasta, extReads))
+    #runReExt = ' '.join(["python3", fastaExtract, extID, fasta, extReads])
+    #print(runReExt)
     #subprocess.call(runReExt, shell = True)
     print("SSU reads have been extracted into "+ extReads)
     return extID, extReads
