@@ -13,8 +13,10 @@ import os
 import sys
 import subprocess
 import argparse
+from pathlib import Path
 
 from Scripts.Tools import makeDirectory
+import Scripts.fastaExtractor as fastaExtract
 
 #######################################################################################################
 def get_args():
@@ -52,6 +54,11 @@ def get_args():
                                 action = "store",
                                 required = True,
                                 help = "Full path to the directory to generate outputs into")
+    required_args.add_argument("-db", "--database",
+                                dest = "Database", type = str,
+                                action = "store",
+                                required = True,
+                                help = "Path to the downloaded SILVA database")
     #######################################################################################################
     optional_args = parser.add_argument_group('Optional arguments')
     optional_args.add_argument("-c", "--candidates",
@@ -102,6 +109,14 @@ def get_args():
                                 action = "store",
                                 default = 2,
                                 help = "Number of threads to use. Default is 2")
+    optional_args.add_argument("-vt", "--vsearch_threshold", 
+                                dest = "Vsearch_Threshold",
+                                action = "store", type = float,
+                                default = 0.65,
+                                help = "Enter a number between 0 and 1 to act as a similarity " +
+                                "threshold for vsearch global search. Note: the higher the " + 
+                                "threshold value, the more stringent and thus the less the " +
+                                "number of reads returned in the BLAST output")
     optional_args.add_argument("-h", "--help",
                                 action = "help",
                                 default = argparse.SUPPRESS,
@@ -122,11 +137,18 @@ THREADS = args.Threads
 PFPREF = args.Profile_prefix
 INCE = args.InclusionExpect
 EVAL = args.ExpectationVal
+DBASE = args.Database
+VTHRES = args.Vsearch_Threshold
 SCPTS = os.path.join(FILE_DIRECTORY, "Scripts")
 ####################################################################################################################################################
 ''' Run the script and functions '''
 ####################################################################################################################################################
 def checkInputs(smode,ffile):
+    '''
+    Function to check the inputs into the script. Checks if the user wants to create a HMM profile 
+    or if the user provides a HMM profile. It also checks if the provided profile has already been indexed.
+    It also checks for zipped input files and for fastq files and converts these to fasta. 
+    '''
     if smode == "create":
         print("Script will run in create mode. Checking for candidate file")
         if not CFILE:
@@ -231,7 +253,7 @@ def alnMuscle(candidates, prefix, outdir, threads):
     trmOut = os.path.join(outdir, prefix+"_candidates_aligned_clean.fasta")
     runTrml = ' '.join(["trimal -in", alnOut, "-out", trmOut, "-gappyout"])
     print(runTrml)
-    subprocess.call(runTrml, shell = True)
+    #subprocess.call(runTrml, shell = True)
     print("Multiple sequence alignment completed")
     return trmOut
 
@@ -253,11 +275,16 @@ def hmmprf(alignedFile, outDIR, prefix, threads):
 
 
 def hmmAln(profile, outdir, isolate, fasta):
+    '''
+    Function to carry out alignment of the isolate reads against the generated or provided HMM profile.
+    First the profile is indexed and then nhmmscan is carried out to scan the reads against the profile.
+    Outputs multiple files: RawMatches, PerSequenceMatches and Short_PerHit text files. 
+    '''
     # index the profile
     print("Indexing the HMM profile")
     indBuild = ' '.join(["hmmpress", profile])
     print(indBuild)
-    subprocess.call(indBuild, shell = True)
+    #subprocess.call(indBuild, shell = True)
     print("HMM Profile constructed and indexed")
     # then nhmmscan
     outIso = os.path.join(outdir, isolate)
@@ -266,8 +293,116 @@ def hmmAln(profile, outdir, isolate, fasta):
                             "-o", outIso+"/RawMatches.txt", "--tblout", outIso+"/PerSequenceMatches.txt",
                             "--dfamtblout", outIso+"/Short_PerHit.txt", profile, fasta])
     print(runHmScan)
-    subprocess.call(runHmScan, shell = True)
+    #subprocess.call(runHmScan, shell = True)
+    outRaw = os.path.join(outIso, "RawMatches.txt")
+    outPerSeq = os.path.join(outIso, "PerSequenceMatches.txt")
+    outPerHit = os.path.join(outIso, "Short_PerHit.txt")
     print("Hmmer scan complete")
+    return outRaw, outPerSeq, outPerHit
+
+
+def getReads(input, output, isolate, fasta):
+    '''
+    Function to extract the reads that have been identified to align against the HMM profile
+    Takes in the path to the PerSequenceMatches file, the output folder, the isolate name
+    and the host-free reads in FASTA format. 
+    Function first extracts the read IDs of reads that align to the HMM profile and then calls
+    a secondary script (fastaExtractor.py) to then use that list of readIDs to make a new FASTA
+    file of just reads that are identified to correspond to the SSU. 
+    Outputs the list of read IDs and makes a fasta file containing the reads which align to
+    the HMM profile.
+    Returns list of readIDs and Reads fasta
+    '''
+    if Path(input).is_file() and os.path.getsize(input) > 0:
+        print("PerSequenceMatches file is not empty, script continues")
+    else:
+        print("PerSequenceMatches file may not exist or is empty. Please try again")
+        sys.exit()
+    print("Extracting the read IDs that align to the HMM profile")
+    makeDirectory(output)
+    extID = os.path.join(output, isolate+"_List_of_Hit_Reads.txt")
+    runExt = ' '.join(["cat", input, "| cut -f19 -d ' ' | tail -n +3 | uniq | head -n -2 >", extID])
+    print(runExt)
+    #subprocess.call(runExt, shell=True) 
+    print("Identified read IDs have been extracted. Corresponding reads will now be extracted")
+    extReads = os.path.join(output, isolate+"_SSU_reads.fasta")
+    runReExt = ' '.join(["python3", fastaExtract, extID, fasta, extReads])
+    print(runReExt)
+    #subprocess.call(runReExt, shell = True)
+    print("SSU reads have been extracted into "+ extReads)
+    return extID, extReads
+
+
+def vsrch(reads, DBASE, outdir, threads):
+    '''
+    Function to carry out vsearch global search of isolate SSU reads against the SILVA database
+    SILVA database must be downloaded and provided by the user. Function first carries out 
+    dereplication of the reads and the database before carrying out the search
+    Requires: SSU reads, SILVA database, Output directory, threads
+    '''
+    # check if the reads and the database has been previously dereplicated
+    checkReds = os.path.abspath(reads).split(".fasta")[0]+"_derep.fasta"
+    checkDB = os.path.abspath(DBASE).split(".fasta")[0]+"_derep.fasta"
+    if Path(checkReds).is_file(): 
+        if os.path.getsize(checkReds) > 0:
+            print("The reads have already been dereplicated and the file is not empty")
+            deRepRead = checkReds
+        else:
+            print("The input reads appear to have a dereplicated file but it is empty")
+            print("This input file will be deleted and reconstituted")
+            # set the output file
+            deRepRead = checkReds
+            # dereplicate the reads
+            runDeRepReads = ' '.join(["vsearch --derep_fulllength", reads, "--output", deRepRead, "--sizeout"])
+            print(runDeRepReads)
+            #subprocess.call(runDeRepReads, shell = True)
+            print("Reads have been dereplicated")
+    else:
+        print("The reads file has not been dereplicated. Dereplication will now take place")
+        # set the output file
+        deRepRead = checkReds
+        # dereplicate the reads
+        runDeRepReads = ' '.join(["vsearch --derep_fulllength", reads, "--output", deRepRead, "--sizeout"])
+        print(runDeRepReads)
+        #subprocess.call(runDeRepReads, shell = True)
+        print("Reads have been dereplicated")
+    if Path(checkDB).is_file(): 
+        if os.path.getsize(checkDB) > 0:
+            print("The database has already been dereplicated and the file is not empty")
+            deRepDB = checkDB
+        else:
+            print("The database appears to have a dereplicated file but it is empty")
+            print("This empty dereplicated file will be deleted and reconstituted")
+            # set the output file
+            deRepDB = checkDB
+            # dereplicate the reads
+            runDeRepDB = ' '.join(["vsearch --derep_fulllength", DBASE, "--output", deRepDB, "--sizeout"])
+            print(runDeRepDB)
+            #subprocess.call(runDeRepDB, shell = True)
+            print("Database has been dereplicated")
+    else:
+        print("The database has not been dereplicated. Dereplication will now take place")
+        # set the output file
+        deRepDB = checkDB
+        # dereplicate the reads
+        runDeRepDB = ' '.join(["vsearch --derep_fulllength", DBASE, "--output", deRepDB, "--sizeout"])
+        print(runDeRepDB)
+        #subprocess.call(runDeRepDB, shell = True)
+        print("Database has been dereplicated")
+    print("Proceeding to carry out global search")
+    try:
+        runGlobSrch = ' '.join(["vsearch --usearch_global", deRepRead, "--uc", outdir+"/VSEARCH_clusters_UC.tab",
+                                "--blast6out", outdir+"/VSEARCH_BLAST_alignedReads.txt", "--db", deRepDB, "--id", str(VTHRES),
+                                "--threads", str(threads)])
+        print(runGlobSrch)
+        #subprocess.call(runGlobSrch, shell = True)
+        print("Global search completed and results have been saved in the output directory")
+        blastOut = outdir+"/VSEARCH_clusters_UC.tab"
+        clustOut = outdir+"/VSEARCH_BLAST_alignedReads.txt"
+        return blastOut, clustOut
+    except (FileExistsError, FileExistsError) as err:
+        print(type(err), err)
+
 
 if __name__ == '__main__':
     FFILE = checkInputs(SMODE,FFILE)
@@ -287,5 +422,10 @@ if __name__ == '__main__':
         print("You have provided a profile. Proceeding...")
     print(FFILE)
     # carry out the alignment of the profile against the input fasta file
-    hmmAln(PFILE, OUTDIR, ISOLATE, FFILE)
-
+    outRaw, outPerSeq, outPerHit = hmmAln(PFILE, OUTDIR, ISOLATE, FFILE)
+    # extract reads and determine the species associated
+    extIDs, extReads = getReads(outPerSeq, OUTDIR, ISOLATE, FFILE)
+    # carry out vsearch of the identified reads against the SILVA database
+    blastTab, clustTab = vsrch(extReads, DBASE, OUTDIR, THREADS)
+    print("Reads have been put through vsearch global search and results saved in " + OUTDIR)
+    print("Have a look at " + blastTab)
