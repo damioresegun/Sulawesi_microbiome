@@ -146,7 +146,7 @@ args = c("path/to/NanoMetaPipe/output/CombinedIsolate.biom",
 	- **cDNA_Processing:** contains a generated transcriptome and/or the alignment of the dscDNA sequence reads against a transcriptome to remove host/contaminant transcriptome
 	- **Demultiplexed:** contains gzipped FASTQ files of the raw demultiplexed barcodes
 	- **DeNoVo_Assembly:** contains the full outputs of the denovo metagenome process
-	- **Filter_Demultiplexed:** contains length and quality filtereddemultiplexed reads for the stated barcodes used during sequence preparation
+	- **Filter_Demultiplexed:** contains length and quality filtered demultiplexed reads for the stated barcodes used during sequence preparation
 	- **Host_Free_Reads:** contains reads which do not map to the reference that were extracted and saved as FASTQ files
 	- **Isolate_Reads_Aligned_Vs_Reference:** contains the BAM file of the DNA reads vs the contaminant reference genome
 	- **Kraken:** contains the taxonomic classification outputs of the reads and metagenomes. Visualisations are saved in HTML files
