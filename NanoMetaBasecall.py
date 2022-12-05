@@ -10,12 +10,9 @@
 # MacKenzie Institute for Early Diagnosis (2022)
 # Author: Damilola Oresegun, Peter Thorpe
 #
-import sys
+
 import os
-import configparser
-import subprocess
 import argparse
-import time
 from matplotlib
 #####################################################################################################
 def get_args():
