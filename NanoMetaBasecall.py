@@ -11,15 +11,19 @@
 # Author: Damilola Oresegun, Peter Thorpe
 #
 
+import sys
 import os
+import configparser
+import subprocess
 import argparse
-from matplotlib
+import time
+import matplotlib
 #####################################################################################################
 def get_args():
     parser = argparse.ArgumentParser(description="Pipeline for basecalling " +
                                      "using the guppy basecaller. Requires " +
                                      " a GPU to carry out basecalling", 
-                                     add_help=False)
+                                     add_help=True)
     file_directory = os.path.realpath(__file__).split("NanoMetaBasecall")[0]
     if not os.path.isfile(os.path.join(file_directory, "NanoMetaBasecall.py")):
         file_directory = os.path.join(file_directory, "NanoMetaBasecall")
