@@ -83,6 +83,13 @@ def DNA_align(ready_path, dnaIsolate, statsDir, temp_align_out, aligned_out,
         filter_fastq_file(hs_reads, alnRename)
         print('De-duplication complete for ' + isolate)
         print("The reads have been renamed and saved as: " + alnRename)
+        # do some stats on the output fastq file
+        runNanSt = ' '.join(["NanoStat", "--fastq", alnRename, "--outdir", 
+                        statss, "-n", isolate])
+        print(runNanSt)
+        # run the nanostat command
+        subprocess.call(runNanSt, shell=True)
+        print('nanoStat complete for ' + barcode)
 
 
 def cDNA_align(ready_path, cdnaIsolate, creads, outDir, scripts, makeCref, 
