@@ -302,52 +302,6 @@ def krakBrak(krak, krakdb, brak, isolate, assembly, reads,
     elif mode == "both":
         return krakOut, krakOut2
 
-
-def makeBiom(inpt,outpt):
-    '''
-    Function to take in a folder, search through the folder to find all
-    instances of a folder named 'Bracken'. If found, copy the report
-    into a new folder and rename using the isolate name. Then convert 
-    each report into a biom file AND make a combined biom file of all 
-    isolates in the input folder
-    Input: tester
-    Output: tester/bracken
-    Returns: String: The name of the combined Biom file
-    '''
-    print("Converting files to biom")
-    # make the output directory if it doesnt exist
-    makeDirectory(outpt)
-    for folder in Path(os.path.abspath(inpt)).glob('*'):
-        fname = os.path.basename(folder)
-        brakFol = os.path.join(folder, "Bracken", 
-                        fname + "_bracken_classicreport.txt")
-        if os.path.exists(os.path.abspath(brakFol)):
-            runErr = "Good"
-            print("Copying " + brakFol + " to " + outpt)
-            cpfile = os.path.join(outpt, fname + ".txt")
-            shutil.copy2(brakFol, cpfile)
-            outfile = os.path.join(outpt, fname + ".biom")
-            # convert the txt files to biom files
-            runBiom = ' '.join(["kraken-biom", cpfile, "-o", outfile])
-            # print for log file
-            print(runBiom)
-            #subprocess.call(runBiom, shell = True)
-            print("Conversion completed")
-        else:
-            runErr = "Failed"
-            print(str(folder) + " did not contain Bracken files")
-            continue
-    # now make a combined biom file
-    if runErr == "Good":
-        print("Now making combined biom file")
-        allTfiles = os.path.join(outpt, "*.txt")
-        allBiom = os.path.join(outpt, "CombinedIsolate.biom")
-        runComBiom = ' '.join(["kraken-biom", allTfiles, "-o", allBiom])
-        print(runComBiom)
-        #subprocess.call(runComBiom, shell = True)
-    else:
-        print(str(folder) + " did not contain Bracken files")
-    return allBiom, runErr
 """ 
 
     # carry out bracken
