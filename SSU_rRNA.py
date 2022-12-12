@@ -430,6 +430,7 @@ def vsrch(reads, DBASE, outdir, threads, isolate):
 
 if __name__ == '__main__':
     FFILE = checkInputs(SMODE,FFILE)
+    makeDirectory(OUTDIR)
     # if the user chooses to create profile:
     if SMODE == "create":
         print("You have chosen generate a profile. Proceeding")
