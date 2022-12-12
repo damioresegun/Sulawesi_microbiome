@@ -6,11 +6,13 @@
 # NOTE: This is a script developed to be run in a GUI not via the command line
 # Author: Damilola R Oresegun
 # Usage: In the args variable below, enter the full path to the biom file, the output folder, the sample metadata and the file
-#         format to save the output images in. Options for output format are png or tiff
-# Example: args=c("my/path/to/CombinedIsolate.biom", 
-#                  "my/path/to/the/output/folder",
+#         format to save the output images in. Options for output format are png or tiff. Final arguments are whether the biom
+#         files are from Assemblies or Reads
+# Example: args=c("my/path/to/the/output/folder",
+#                   "my/path/to/CombinedIsolate.biom",
 #                   "my/path/to/my/sample_metadata.csv",
-#                    "png")
+#                    "png",
+#                     "Assembly" or "Reads")
 # Outputs: Several plots and tables holding the composition,abundance, alpha and beta diversity of the input microbiome 
 #           community.
 ##############################################################################################################################
@@ -22,7 +24,8 @@ rm(list = ls())
 args = c("C:/Users/dro/Dropbox/Work/MacLaptop/JCS_Project/Pipeline/Sulawesi_microbiome/UpdatedMicroAnalysis", 
             "All_Isolates_Reads.biom", 
             "sampleData.csv", 
-            "png")
+            "png",
+            "Assembly")
 # install and set libraries
 if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
@@ -53,7 +56,7 @@ outImg = args[4] # output image format
 setwd(workD)
 cat("The working directory is ", getwd())
 # make folder to place outputs
-outputFolder <- "Assembly"
+outputFolder <- args[5]
 if (file.exists(outputFolder)) {
     cat("The folder already exists")
 } else {
@@ -500,17 +503,17 @@ write.csv(alpha_div, paste0(outputFolder, "/AlphaDiversity.csv"),
                          color = "Location", shape = "Isolate") +
     geom_point(aes(color = Location)) +
     labs(color = "Location"))
-if (outImg == "tiff"){
-  tiff(paste0(outputFolder,"/Combined_PerPhylum_RelativeAbundance.tif"), 
-        width = 4500, height = 3200, units = "px", res = 300)
-  print(plot9)
-  dev.off()
-} else if (outImg == "png") {
-  png(paste0(outputFolder,"/Combined_PerPhylum_RelativeAbundance.png"), 
-        width = 4500, height = 3200, units = "px", res = 300)
-  print(plot9)
-  dev.off()
-}
+#if (outImg == "tiff"){
+#  tiff(paste0(outputFolder,"/Combined_PerPhylum_RelativeAbundance.tif"), 
+#        width = 4500, height = 3200, units = "px", res = 300)
+#  print(plot9)
+#  dev.off()
+#} else if (outImg == "png") {
+#  png(paste0(outputFolder,"/Combined_PerPhylum_RelativeAbundance.png"), 
+#        width = 4500, height = 3200, units = "px", res = 300)
+#  print(plot9)
+#  dev.off()
+#}
 if (outImg == "tiff"){
   tiff(paste0(outputFolder,"/AlphaDiversity.tif"), 
         width = 4500, height = 3200, units = "px", res = 300)
