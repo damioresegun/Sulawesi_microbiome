@@ -436,7 +436,14 @@ if __name__ == '__main__':
         print("You have chosen generate a profile. Proceeding")
         # download the candidates
         downSC = os.path.join(SCPTS, "Download_NCBI_Accession_to_Fasta.py")
-        candidateFile = downloadCandidates(CFILE, downSC, OUTDIR)
+        if os.path.exists(downSC):
+            candidateFile = downloadCandidates(CFILE, downSC, OUTDIR)
+            pass
+        else:
+            print("The Download_NCBI_Accession_to_Fasta.py script could not be found")
+            print("Please ensure that you are running this script INSIDE the package folder")
+            print("Doing this ensures that the pipeline is able to find the script")
+            sys.exit()
         # carry out multiple sequence alignment
         trmmed = alnMuscle(candidateFile, PFPREF, OUTDIR, THREADS)
         # build the profile
