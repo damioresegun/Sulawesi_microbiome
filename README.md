@@ -41,9 +41,8 @@ f --> j
 	- **While there is support for the use of double stranded cDNA, currently, it may not provide sufficient information.**
 ## Installation
 The full list of tools used for this pipeline are mostly available via conda. The full list is:
-```csvtable
-source: CSVFiles/nanometapipe_tools.csv
-```
+[nanometapipe_tools.csv](https://github.com/damioresegun/Sulawesi_microbiome/files/10268770/nanometapipe_tools.csv)
+
 - This pipeline has 4 main branches:
 	1. **Basecalling**
 	2. **Processing, Analyses, Classification**
