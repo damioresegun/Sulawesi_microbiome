@@ -62,7 +62,7 @@ To carry out the necessary classification and confirmation, databases are requir
 	- Virus
 Classification confirmation is carried out using the reference **SILVA** database **or** a curated/custom SILVA database
 ### Full Installation
-For full installation instructions, please go to the [[Installation]] page. This page will provide full scope information of the necessary steps required to install the tools and packages utilised in NanoMetaPipe.
+For full installation instructions, please go to the [[Installation]](https://github.com/damioresegun/Sulawesi_microbiome/wiki/Installation) page. This page will provide full scope information of the necessary steps required to install the tools and packages utilised in NanoMetaPipe.
 ## Quick Start
 The quickest way to start the pipeline is the use of the `runMetaPipe.sh` script. The pipeline is set up to run an entire ONT sequencing **experiment** run in one go. This means that the absolutely first thing that is necessary are raw outputs of a ONT sequencing experiments that still require basecalling. 
 ### Basecalling
