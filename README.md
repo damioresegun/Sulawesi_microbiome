@@ -41,9 +41,8 @@ f --> j
 	- **While there is support for the use of double stranded cDNA, currently, it may not provide sufficient information.**
 ## Installation
 The full list of tools used for this pipeline are mostly available via conda. The full list is:
-```csvtable
-source: CSVFiles/nanometapipe_tools.csv
-```
+[nanometapipe_tools.csv](https://github.com/damioresegun/Sulawesi_microbiome/files/10268770/nanometapipe_tools.csv)
+
 - This pipeline has 4 main branches:
 	1. **Basecalling**
 	2. **Processing, Analyses, Classification**
@@ -62,8 +61,10 @@ To carry out the necessary classification and confirmation, databases are requir
 	- Plasmids
 	- Virus
 Classification confirmation is carried out using the reference **SILVA** database **or** a curated/custom SILVA database
+### Quick Installation
+The quickest means of installation can be carried out using the associated YAML files to create suitable conda environments. Full instructions of how to carry this out is given in the [Installation](https://github.com/damioresegun/Sulawesi_microbiome/wiki/Installation) page. 
 ### Full Installation
-For full installation instructions, please go to the [[Installation]] page. This page will provide full scope information of the necessary steps required to install the tools and packages utilised in NanoMetaPipe.
+For full installation instructions, please go to the [Installation](https://github.com/damioresegun/Sulawesi_microbiome/wiki/Installation) page. This page will provide full scope information of the necessary steps required to install the tools and packages utilised in NanoMetaPipe.
 ## Quick Start
 The quickest way to start the pipeline is the use of the `runMetaPipe.sh` script. The pipeline is set up to run an entire ONT sequencing **experiment** run in one go. This means that the absolutely first thing that is necessary are raw outputs of a ONT sequencing experiments that still require basecalling. 
 ### Basecalling
@@ -80,7 +81,7 @@ The options used represent:
 - `-k`: The sequencing kit used for the experiment
 - `-f`: The flowcell used for the experiment
 ### Main Pipeline -- NanoMetaPipe
-The bulk of the pipeline is carried out using the `NanoMetaPipe.py` script. For full instructions of how to run this script, go to: [[Pipeline Breakdown]]. For a quick run, open the `runMetaPipe.sh` and provide the information for the required variables
+The bulk of the pipeline is carried out using the `NanoMetaPipe.py` script. For full instructions of how to run this script, go to: [NanoMetaPipe Options](https://github.com/damioresegun/Sulawesi_microbiome/wiki/NanoMetaPipe-Options). For a quick run, open the `runMetaPipe.sh` and provide the information for the required variables
 | Variable      | Information needed                                                           |
 | ------------- | ---------------------------------------------------------------------------- |
 | NanoMetaPipe  | Full path to the NanoMetaPipe.py script                                      |
@@ -94,7 +95,7 @@ The bulk of the pipeline is carried out using the `NanoMetaPipe.py` script. For 
 | bracken       | Full path to the bracken package                                             |
 | ncbi_db       | Full path to the local NCBI *nt* database                                      | 
 
-These are the bare minimum options required to run the main NanoMetaPipe pipeline. Further options are available in the [[Pipeline Breakdown]] page or with `python NanoMetaPipe.sh --help`.
+These are the bare minimum options required to run the main NanoMetaPipe pipeline. Further options are available in the [NanoMetaPipe Options](https://github.com/damioresegun/Sulawesi_microbiome/wiki/NanoMetaPipe-Options) page or with `python NanoMetaPipe.sh --help`.
 To run the `runMetaPipe.sh` script after inputting the necessary options:
 ```bash
 # first activate the correct conda environment named 'nanometaENV'
@@ -127,7 +128,7 @@ conda activate hmmENV
 # run the SSU script to create a new HMM profile
 python ./SSU_rRNA.py -f full/path/to/reads.fasta -m create -o path/to/output -db path/to/SILVA/database
 ```
-Once again, for full options of the script, go to [[Pipeline Breakdown]].
+Once again, for full options of the script, go to [Classification Confirmation Arguments](https://github.com/damioresegun/Sulawesi_microbiome/wiki/Classification-confirmation#arguments).
 ### Secondary Pipeline -- Microbiome Analysis
 This R script is developed to be run within a graphical R interface. This is recommended to be run in RStudio. 
 **The script must be run after completing the main NanoMetaPipe pipeline. An output from NanoMetaPipe is required to run this R script.**
