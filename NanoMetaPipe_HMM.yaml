@@ -1,0 +1,21 @@
+name: hmm
+channels:
+  - ursky
+  - bioconda
+  - conda-forge
+  - defaults
+  - r
+dependencies:
+  - _libgcc_mutex=0.1=conda_forge
+  - _openmp_mutex=4.5=2_gnu
+  - bzip2=1.0.8=h7f98852_4
+  - hmmer=3.3.2=h87f3376_2
+  - libgcc-ng=12.1.0=h8d9b700_16
+  - libgomp=12.1.0=h8d9b700_16
+  - libstdcxx-ng=12.1.0=ha89aaad_16
+  - libzlib=1.2.13=h166bdaf_4
+  - muscle=5.1=h9f5acd7_1
+  - trimal=1.4.1=h9f5acd7_6
+  - vsearch=2.22.1=hf1761c0_0
+  - zlib=1.2.13=h166bdaf_4
+prefix: /mnt/shared/scratch/doresegu/apps/conda/envs/hmm
