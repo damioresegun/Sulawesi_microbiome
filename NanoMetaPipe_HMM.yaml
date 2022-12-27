@@ -1,4 +1,4 @@
-name: hmm
+name: nanometa_hmm
 channels:
   - ursky
   - bioconda

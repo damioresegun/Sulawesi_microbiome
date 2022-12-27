@@ -1,4 +1,4 @@
-name: metagenomics
+name: nanometa_main
 channels:
   - anaconda
   - biobakery
